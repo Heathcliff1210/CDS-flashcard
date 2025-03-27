@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎭 CDS FLASHCARD-BASE - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5D3FD3;
+            --secondary-color: #FF6B6B;
+            --background-color: #F4F4F9;
+            --text-color: #333;
+            --card-background: white;
+            --accent-color: #6A5ACD;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Roboto', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            font-size: 16px;
+        }
+
+        .dashboard-nav {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            gap: 10px;
+        }
+
+        .logo-emoji {
+            font-size: 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 15px;
+        }
+
+        .creation-zone, .gallery-section {
+            background-color: var(--card-background);
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        .create-deck-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+        }
+
+        .create-deck-btn:hover {
+            transform: scale(1.05);
+            background-color: var(--accent-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .decks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .deck-card {
+            background-color: var(--background-color);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(93, 63, 211, 0.1);
+        }
+
+        .deck-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .deck-cover {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .deck-card:hover .deck-cover {
+            transform: scale(1.05);
+        }
+
+        .deck-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .deck-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .deck-action-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .deck-action-btn:hover {
+            color: var(--secondary-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--background-color);
+            padding-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .form-group input, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(93, 63, 211, 0.2);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(93, 63, 211, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-custom {
+            border: 2px dashed var(--primary-color);
+            padding: 15px;
+            text-align: center;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .file-input-wrapper:hover .file-input-custom {
+            background-color: rgba(93, 63, 211, 0.05);
+        }
+
+        .cover-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            margin-top: 15px;
+            object-fit: cover;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .decks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="dashboard-nav">
+        <a href="index.html" class="nav-logo">
+            <span class="logo-emoji">🎭</span>
+            CDS FLASHCARD-BASE
+        </a>
+    </nav>
+
+    <div class="container">
+        <section class="creation-zone">
+            <button class="create-deck-btn" onclick="openCreateDeckModal()">
+                <i class="fas fa-plus"></i> Créer un nouveau deck
+            </button>
+        </section>
+
+        <section class="gallery-section">
+            <div class="decks-grid" id="decks-container">
+                <!-- Les decks seront générés dynamiquement ici -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal de création de deck -->
+    <div id="createDeckModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Créer un nouveau deck</h2>
+                <button class="close-modal" onclick="closeCreateDeckModal()">×</button>
+            </div>
+            <form id="createDeckForm">
+                <div class="form-group">
+                    <label for="deckName">Nom du deck</label>
+                    <input type="text" id="deckName" placeholder="Ex: Vocabulaire Français" required>
+                </div>
+                <div class="form-group">
+                    <label for="deckDescription">Description (optionnel)</label>
+                    <textarea id="deckDescription" placeholder="Décrivez brièvement l'objectif de ce deck"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Couverture du deck</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="deckCover" accept="image/*">
+                        <div class="file-input-custom">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Glissez et déposez une image ou cliquez pour sélectionner</p>
+                        </div>
+                    </div>
+                    <img id="coverPreview" class="cover-preview" style="display:none;">
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Créer le deck
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal d'édition de deck -->
+    <div id="editDeckModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier le deck</h2>
+                <button class="close-modal" onclick="closeEditDeckModal()">×</button>
+            </div>
+            <form id="editDeckForm">
+                <input type="hidden" id="editDeckId">
+                <div class="form-group">
+                    <label for="editDeckName">Nom du deck</label>
+                    <input type="text" id="editDeckName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDeckDescription">Description</label>
+                    <textarea id="editDeckDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Couverture du deck</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="editDeckCover" accept="image/*">
+                        <div class="file-input-custom">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Glissez et déposez une image ou cliquez pour sélectionner</p>
+                        </div>
+                    </div>
+                    <img id="editCoverPreview" class="cover-preview" style="display:none;">
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Enregistrer les modifications
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Gestion des decks (sauvegarde dans le localStorage)
+        class DeckManager {
+            static getDecks() {
+                return JSON.parse(localStorage.getItem('decks') || '[]');
+            }
+
+            static saveDeck(deck) {
+                const decks = this.getDecks();
+                const existingDeckIndex = decks.findIndex(d => d.id === deck.id);
+                
+                if (existingDeckIndex !== -1) {
+                    // Mettre à jour un deck existant
+                    decks[existingDeckIndex] = deck;
+                } else {
+                    // Ajouter un nouveau deck
+                    decks.push(deck);
+                }
+                
+                localStorage.setItem('decks', JSON.stringify(decks));
+            }
+
+            static deleteDeck(id) {
+                let decks = this.getDecks();
+                decks = decks.filter(deck => deck.id !== id);
+                localStorage.setItem('decks', JSON.stringify(decks));
+            }
+
+            static getDeckById(id) {
+                const decks = this.getDecks();
+                return decks.find(deck => deck.id === id);
+            }
+        }
+
+        // Rendu des decks
+        function renderDecks() {
+            const container = document.getElementById('decks-container');
+            const decks = DeckManager.getDecks();
+            
+            if (decks.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--primary-color);">Aucun deck créé. Commencez par en créer un !</p>';
+                return;
+            }
+
+            container.innerHTML = decks.map(deck => `
+                <div class="deck-card">
+                    ${deck.coverImage ? `<img src="${deck.coverImage}" alt="${deck.name}" class="deck-cover">` : ''}
+                    <div class="deck-card-header">
+                        <h3>${deck.name}</h3>
+                        <div class="deck-actions">
+                            <button class="deck-action-btn" onclick="openEditDeckModal(${deck.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="deck-action-btn" onclick="enterDeck(${deck.id})">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </button>
+                            <button class="deck-action-btn" onclick="deleteDeck(${deck.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${deck.description ? `<p>${deck.description}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Suppression d'un deck
+        function deleteDeck(id) {
+            if(confirm('Voulez-vous vraiment supprimer ce deck ?')) {
+                DeckManager.deleteDeck(id);
+                renderDecks();
+            }
+        }
+
+        // Entrer dans un deck (pour créer des flashcards)
+        function enterDeck(id) {
+            // Rediriger vers la page de création de flashcards pour ce deck
+            window.location.href = `flashcards.html?deckId=${id}`;
+        }
+
+        // Gestion du modal de création de deck
+        function openCreateDeckModal() {
+            document.getElementById('createDeckModal').style.display = 'flex';
+        }
+
+        function closeCreateDeckModal() {
+            document.getElementById('createDeckModal').style.display = 'none';
+        }
+
+        // Gestion du modal d'édition de deck
+        function openEditDeckModal(id) {
+            const deck = DeckManager.getDeckById(id);
+            if (!deck) return;
+
+            const editForm = document.getElementById('editDeckForm');
+            const editDeckId = document.getElementById('editDeckId');
+            const editDeckName = document.getElementById('editDeckName');
+            const editDeckDescription = document.getElementById('editDeckDescription');
+            const editCoverPreview = document.getElementById('editCoverPreview');
+            const editDeckCover = document.getElementById('editDeckCover');
+            const fileInputCustom = editForm.querySelector('.file-input-custom');
+
+            // Remplir le formulaire avec les données du deck
+            editDeckId.value = deck.id;
+            editDeckName.value = deck.name;
+            editDeckDescription.value = deck.description || '';
+
+            // Gérer l'image de couverture
+            if (deck.coverImage) {
+                editCoverPreview.src = deck.coverImage;
+                editCoverPreview.style.display = 'block';
+                fileInputCustom.style.display = 'none';
+            } else {
+                editCoverPreview.style.display = 'none';
+                fileInputCustom.style.display = 'block';
+            }
+
+            document.getElementById('editDeckModal').style.display = 'flex';
+        }
+
+        function closeEditDeckModal() {
+            document.getElementById('editDeckModal').style.display = 'none';
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDecks();
+
+            // Aperçu de l'image de couverture pour la création
+            const coverInput = document.getElementById('deckCover');
+            const coverPreview = document.getElementById('coverPreview');
+            const fileInputCustom = document.querySelector('#createDeckModal .file-input-custom');
+
+            coverInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        coverPreview.src = e.target.result;
+                        coverPreview.style.display = 'block';
+                        fileInputCustom.style.display = 'none';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Aperçu de l'image de couverture pour l'édition
+            const editCoverInput = document.getElementById('editDeckCover');
+            const editCoverPreview = document.getElementById('editCoverPreview');
+            const editFileInputCustom = document.querySelector('#editDeckModal .file-input-custom');
+
+            editCoverInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        editCoverPreview.src = e.target.result;
+                        editCoverPreview.style.display = 'block';
+                        editFileInputCustom.style.display = 'none';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Gestion du formulaire de création de deck
+            const createForm = document.getElementById('createDeckForm');
+            createForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const deckName = document.getElementById('deckName').value;
+                const deckDescription = document.getElementById('deckDescription').value;
+                const coverInput = document.getElementById('deckCover');
+
+                // Créer un nouveau deck
+                const newDeck = {
+                    id: Date.now(), // Utiliser un timestamp comme ID unique
+                    name: deckName,
+                    description: deckDescription,
+                    coverImage: coverPreview.src || null
+                };
+
+                DeckManager.saveDeck(newDeck);
+                renderDecks();
+                closeCreateDeckModal();
+                createForm.reset();
+                coverPreview.style.display = 'none';
+                fileInputCustom.style.display = 'block';
+            });
+
+            // Gestion du formulaire d'édition de deck
+            const editForm = document.getElementById('editDeckForm');
+            editForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const deckId = parseInt(document.getElementById('editDeckId').value);
+                const deckName = document.getElementById('editDeckName').value;
+                const deckDescription = document.getElementById('editDeckDescription').value;
+                const editCoverPreview = document.getElementById('editCoverPreview');
+
+                // Mettre à jour le deck
+                const updatedDeck = {
+                    id: deckId,
+                    name: deckName,
+                    description: deckDescription,
+                    coverImage: editCoverPreview.src || null
+                };
+
+                DeckManager.saveDeck(updatedDeck);
+                renderDecks();
+                closeEditDeckModal();
+                editForm.reset();
+            });
+        });
+    </script>
+</body>
+</html>

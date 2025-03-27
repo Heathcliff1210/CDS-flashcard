@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🃏 CDS FLASHCARD-BASE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5D3FD3;
+            --secondary-color: #FF6B6B;
+            --background-color: #F4F4F9;
+            --text-color: #333;
+            --card-background: #f0f0f8;
+            --accent-color: #6A5ACD;
+            --soft-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            font-size: 16px;
+        }
+
+        .dashboard-nav {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--soft-shadow);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            gap: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 15px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .primary-btn:hover {
+            background-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .themes-grid, .flashcards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .theme-card, .flashcard {
+            background-color: var(--card-background);
+            border-radius: 15px;
+            box-shadow: var(--soft-shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-card:hover, .flashcard:hover {
+            transform: scale(1.03);
+        }
+
+        .theme-card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .theme-card-content, .flashcard-content {
+            padding: 15px;
+        }
+
+        .theme-card-actions, .flashcard-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .action-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-form {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, 
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .themes-grid, .flashcards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="dashboard-nav">
+        <a href="index.html" class="nav-logo">
+            <span class="logo-emoji">🃏</span>
+            CDS FLASHCARD-BASE
+        </a>
+    </nav>
+
+    <div class="container">
+        <div class="section-header">
+            <h1 id="page-title">Thèmes</h1>
+            <button class="primary-btn" onclick="openCreateThemeModal()">
+                <i class="fas fa-plus"></i> Créer un thème
+            </button>
+        </div>
+
+        <div id="themes-container" class="themes-grid">
+            <!-- Thèmes seront générés ici -->
+        </div>
+
+        <div id="flashcards-section" style="display:none;">
+            <div class="section-header">
+                <h2 id="theme-name"></h2>
+                <div>
+                    <button class="primary-btn" onclick="openCreateFlashcardModal()">
+                        <i class="fas fa-plus"></i> Créer une flashcard
+                    </button>
+                    <button class="primary-btn" onclick="startRevision()">
+                        <i class="fas fa-book-reader"></i> Révision
+                    </button>
+                </div>
+            </div>
+            <div id="flashcards-container" class="flashcards-grid">
+                <!-- Flashcards seront générées ici -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modaux -->
+    <!-- Modal Création de Thème -->
+    <div id="createThemeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Créer un nouveau thème</h2>
+                <button class="action-btn" onclick="closeModal('createThemeModal')">×</button>
+            </div>
+            <form id="createThemeForm" class="modal-form">
+                <div class="form-group">
+                    <label for="themeName">Nom du thème</label>
+                    <input type="text" id="themeName" required maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="themeDescription">Description (optionnel)</label>
+                    <textarea id="themeDescription" maxlength="500"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image du thème</label>
+                    <input type="file" id="themeImageUpload" accept="image/*" style="display:none;">
+                    <button type="button" class="primary-btn" onclick="document.getElementById('themeImageUpload').click()">
+                        <i class="fas fa-image"></i> Choisir une image
+                    </button>
+                    <img id="themeImagePreview" class="image-preview" style="display:none;">
+                </div>
+                <button type="submit" class="primary-btn">
+                    <i class="fas fa-save"></i> Enregistrer le thème
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Création de Flashcard -->
+    <div id="createFlashcardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Créer une nouvelle flashcard</h2>
+                <button class="action-btn" onclick="closeModal('createFlashcardModal')">×</button>
+            </div>
+            <form id="createFlashcardForm" class="modal-form">
+                <div class="form-group">
+                    <label for="flashcardFront">Recto de la carte</label>
+                    <textarea id="flashcardFront" required maxlength="500"></textarea>
+                    <input type="file" id="frontImageUpload" accept="image/*" style="display:none;">
+                    <button type="button" class="primary-btn" onclick="document.getElementById('frontImageUpload').click()">
+                        <i class="fas fa-image"></i> Ajouter une image
+                    </button>
+                    <img id="frontImagePreview" class="image-preview" style="display:none;">
+                </div>
+                <div class="form-group">
+                    <label for="flashcardBack">Verso de la carte</label>
+                    <textarea id="flashcardBack" required maxlength="500"></textarea>
+                    <input type="file" id="backImageUpload" accept="image/*" style="display:none;">
+                    <button type="button" class="primary-btn" onclick="document.getElementById('backImageUpload').click()">
+                        <i class="fas fa-image"></i> Ajouter une image
+                    </button>
+                    <img id="backImagePreview" class="image-preview" style="display:none;">
+                </div>
+                <div class="form-group">
+                    <label for="flashcardAdditionalInfo">Informations supplémentaires</label>
+                    <textarea id="flashcardAdditionalInfo" maxlength="1000"></textarea>
+                </div>
+                <button type="submit" class="primary-btn">
+                    <i class="fas fa-save"></i> Créer la flashcard
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Révision -->
+    <div id="revisionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mode Révision</h2>
+                <button class="action-btn" onclick="stopRevision()">×</button>
+            </div>
+            <div id="revisionContent">
+                <!-- Contenu de révision sera généré ici -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gestionnaire de stockage
+        class StorageManager {
+            static getItem(key, defaultValue = null) {
+                try {
+                    const item = localStorage.getItem(key);
+                    return item ? JSON.parse(item) : defaultValue;
+                } catch (error) {
+                    console.error('Erreur de lecture du stockage:', error);
+                    return defaultValue;
+                }
+            }
+
+            static setItem(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (error) {
+                    console.error('Erreur d\'écriture dans le stockage:', error);
+                }
+            }
+        }
+
+        // Gestionnaire de thèmes
+        class ThemeManager {
+            static getThemes() {
+                return StorageManager.getItem('themes', []);
+            }
+
+            static saveTheme(theme) {
+                const themes = this.getThemes();
+                const index = themes.findIndex(t => t.id === theme.id);
+                
+                if (index !== -1) {
+                    themes[index] = { ...themes[index], ...theme };
+                } else {
+                    theme.id = Date.now();
+                    themes.push(theme);
+                }
+                
+                StorageManager.setItem('themes', themes);
+                return theme.id;
+            }
+
+            static deleteTheme(themeId) {
+                const themes = this.getThemes().filter(t => t.id !== themeId);
+                StorageManager.setItem('themes', themes);
+                
+                // Supprimer les flashcards associées
+                const flashcards = FlashcardManager.getAllFlashcards();
+                const updatedFlashcards = flashcards.filter(f => f.themeId !== themeId);
+                StorageManager.setItem('flashcards', updatedFlashcards);
+            }
+
+            static getThemeById(themeId) {
+                return this.getThemes().find(t => t.id === themeId);
+            }
+        }
+
+        // Gestionnaire de flashcards
+        class FlashcardManager {
+            static getAllFlashcards() {
+                return StorageManager.getItem('flashcards', []);
+            }
+
+            static getFlashcardsByTheme(themeId) {
+                return this.getAllFlashcards().filter(f => f.themeId === themeId);
+            }
+
+            static saveFlashcard(flashcard) {
+                const flashcards = this.getAllFlashcards();
+                const index = flashcards.findIndex(f => f.id === flashcard.id);
+                
+                if (index !== -1) {
+                    flashcards[index] = { ...flashcards[index], ...flashcard };
+                } else {
+                    flashcard.id = Date.now();
+                    flashcards.push(flashcard);
+                }
+                
+                StorageManager.setItem('flashcards', flashcards);
+                return flashcard.id;
+            }
+
+            static deleteFlashcard(flashcardId) {
+                const flashcards = this.getAllFlashcards().filter(f => f.id !== flashcardId);
+                StorageManager.setItem('flashcards', flashcards);
+            }
+        }
+
+        // Variables globales
+        let currentThemeId = null;
+        let revisionFlashcards = [];
+        let currentRevisionIndex = 0;
+
+        // Utilitaires
+        function resizeImage(file, maxWidth = 300, maxHeight = 200) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height *= maxWidth / width;
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width *= maxHeight / height;
+                                height = maxHeight;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        resolve(canvas.toDataURL(file.type));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Gestion des thèmes
+        function renderThemes() {
+            const container = document.getElementById('themes-container');
+            const themes = ThemeManager.getThemes();
+            
+            if (themes.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--primary-color);">Aucun thème créé. Commencez par en créer un !</p>';
+                return;
+            }
+
+            container.innerHTML = themes.map(theme => `
+                <div class="theme-card" onclick="openTheme(${theme.id})">
+                    ${theme.image ? `<img src="${theme.image}" alt="${theme.name}" class="theme-card-image">` : ''}
+                    <div class="theme-card-content">
+                        <h3>${theme.name}</h3>
+                        ${theme.description ? `<p>${theme.description}</p>` : ''}
+                    </div>
+                    <div class="theme-card-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); openEditThemeModal(${theme.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn" onclick="event.stopPropagation(); deleteTheme(${theme.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openCreateThemeModal() {
+            const modal = document.getElementById('createThemeModal');
+            modal.style.display = 'flex';
+            document.getElementById('createThemeForm').reset();
+            document.getElementById('themeImagePreview').style.display = 'none';
+        }
+
+        function openEditThemeModal(themeId) {
+            const theme = ThemeManager.getThemeById(themeId);
+            if (!theme) return;
+
+            const modal = document.getElementById('createThemeModal');
+            document.getElementById('themeName').value = theme.name;
+            document.getElementById('themeDescription').value = theme.description || '';
+            
+            const imagePreview = document.getElementById('themeImagePreview');
+            if (theme.image) {
+                imagePreview.src = theme.image;
+                imagePreview.style.display = 'block';
+            } else {
+                imagePreview.style.display = 'none';
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function deleteTheme(themeId) {
+            const confirmDelete = window.confirm('Voulez-vous vraiment supprimer ce thème et toutes ses flashcards ?');
+            if (confirmDelete) {
+                ThemeManager.deleteTheme(themeId);
+                renderThemes();
+            }
+        }
+
+        function openTheme(themeId) {
+            currentThemeId = themeId;
+            const theme = ThemeManager.getThemeById(themeId);
+            
+            document.getElementById('themes-container').style.display = 'none';
+            document.getElementById('page-title').textContent = 'Flashcards';
+            document.getElementById('theme-name').textContent = theme.name;
+            document.getElementById('flashcards-section').style.display = 'block';
+            
+            renderFlashcards();
+        }
+
+         // Gestion des flashcards
+        function renderFlashcards() {
+            const container = document.getElementById('flashcards-container');
+            const flashcards = FlashcardManager.getFlashcardsByTheme(currentThemeId);
+            
+            if (flashcards.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--primary-color);">Aucune flashcard créée. Commencez par en créer une !</p>';
+                return;
+            }
+
+            container.innerHTML = flashcards.map(card => `
+                <div class="flashcard">
+                    <div class="flashcard-actions">
+                        <button class="action-btn" onclick="openEditFlashcardModal(${card.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn" onclick="deleteFlashcard(${card.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="flashcard-content">
+                        <div class="flashcard-front">
+                            <p>${card.front}</p>
+                            ${card.frontImage ? `<img src="${card.frontImage}" alt="Image recto" class="image-preview">` : ''}
+                        </div>
+                        <div class="flashcard-back" style="display:none;">
+                            <p>${card.back}</p>
+                            ${card.backImage ? `<img src="${card.backImage}" alt="Image verso" class="image-preview">` : ''}
+                            ${card.additionalInfo ? `
+                                <div class="additional-info">
+                                    <p><strong>Informations supplémentaires:</strong></p>
+                                    <p>${card.additionalInfo}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Ajouter les événements de flip
+            document.querySelectorAll('.flashcard').forEach(card => {
+                card.addEventListener('click', () => {
+                    const front = card.querySelector('.flashcard-front');
+                    const back = card.querySelector('.flashcard-back');
+                    front.style.display = front.style.display === 'none' ? 'block' : 'none';
+                    back.style.display = back.style.display === 'none' ? 'block' : 'none';
+                });
+            });
+        }
+
+        function deleteFlashcard(flashcardId) {
+            const confirmDelete = window.confirm('Voulez-vous vraiment supprimer cette flashcard ?');
+            if (confirmDelete) {
+                FlashcardManager.deleteFlashcard(flashcardId);
+                renderFlashcards();
+            }
+        }
+
+        // Révision
+        function startRevision() {
+            const flashcards = FlashcardManager.getFlashcardsByTheme(currentThemeId);
+            
+            if (flashcards.length === 0) {
+                alert('Aucune flashcard à réviser');
+                return;
+            }
+
+            // Mélanger les flashcards
+            revisionFlashcards = flashcards.sort(() => Math.random() - 0.5);
+            currentRevisionIndex = 0;
+
+            const revisionModal = document.getElementById('revisionModal');
+            const revisionContent = document.getElementById('revisionContent');
+            renderRevisionCard();
+            revisionModal.style.display = 'flex';
+        }
+
+        function renderRevisionCard() {
+            if (currentRevisionIndex >= revisionFlashcards.length) {
+                stopRevision();
+                return;
+            }
+
+            const card = revisionFlashcards[currentRevisionIndex];
+            const revisionContent = document.getElementById('revisionContent');
+
+            revisionContent.innerHTML = `
+                <div class="revision-card">
+                    <h3>Flashcard ${currentRevisionIndex + 1}/${revisionFlashcards.length}</h3>
+                    <div class="revision-front">
+                        <p>${card.front}</p>
+                        ${card.frontImage ? `<img src="${card.frontImage}" alt="Image recto" class="image-preview">` : ''}
+                    </div>
+                    <div class="revision-actions">
+                        <button class="primary-btn" onclick="showRevisionAnswer()">Voir la réponse</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showRevisionAnswer() {
+            const card = revisionFlashcards[currentRevisionIndex];
+            const revisionContent = document.getElementById('revisionContent');
+
+            revisionContent.innerHTML = `
+                <div class="revision-card">
+                    <h3>Flashcard ${currentRevisionIndex + 1}/${revisionFlashcards.length}</h3>
+                    <div class="revision-answer">
+                        <p>${card.back}</p>
+                        ${card.backImage ? `<img src="${card.backImage}" alt="Image verso" class="image-preview">` : ''}
+                        ${card.additionalInfo ? `
+                            <div class="additional-info">
+                                <p><strong>Informations supplémentaires:</strong></p>
+                                <p>${card.additionalInfo}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="revision-actions">
+                        <button class="primary-btn" onclick="nextRevisionCard()">Suivant</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function nextRevisionCard() {
+            currentRevisionIndex++;
+            renderRevisionCard();
+        }
+
+        function stopRevision() {
+            const revisionModal = document.getElementById('revisionModal');
+            revisionModal.style.display = 'none';
+            revisionFlashcards = [];
+            currentRevisionIndex = 0;
+        }
+
+        // Gestion des images
+        async function handleImageUpload(fileInput, previewImage) {
+            const file = fileInput.files[0];
+            if (!file) return null;
+
+            // Validation du fichier
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                alert('Seuls les fichiers image (JPEG, PNG, GIF, WebP) sont autorisés');
+                fileInput.value = '';
+                return null;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Le fichier ne doit pas dépasser 5 Mo');
+                fileInput.value = '';
+                return null;
+            }
+
+            try {
+                const resizedImage = await resizeImage(file);
+                previewImage.src = resizedImage;
+                previewImage.style.display = 'block';
+                return resizedImage;
+            } catch (error) {
+                console.error('Erreur de redimensionnement', error);
+                return null;
+            }
+        }
+
+        // Événements d'initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialiser les événements de téléchargement d'images
+            document.getElementById('themeImageUpload').addEventListener('change', async (e) => {
+                await handleImageUpload(e.target, document.getElementById('themeImagePreview'));
+            });
+
+            document.getElementById('frontImageUpload').addEventListener('change', async (e) => {
+                await handleImageUpload(e.target, document.getElementById('frontImagePreview'));
+            });
+
+            document.getElementById('backImageUpload').addEventListener('change', async (e) => {
+                await handleImageUpload(e.target, document.getElementById('backImagePreview'));
+            });
+
+            // Formulaire de création de thème
+            document.getElementById('createThemeForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const theme = {
+                    name: document.getElementById('themeName').value.trim(),
+                    description: document.getElementById('themeDescription').value.trim() || null,
+                    image: document.getElementById('themeImagePreview').src || null
+                };
+
+                if (!theme.name) {
+                    alert('Le nom du thème est obligatoire');
+                    return;
+                }
+
+                ThemeManager.saveTheme(theme);
+                renderThemes();
+                closeModal('createThemeModal');
+            });
+
+            // Formulaire de création de flashcard
+            document.getElementById('createFlashcardForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const flashcard = {
+                    themeId: currentThemeId,
+                    front: document.getElementById('flashcardFront').value.trim(),
+                    back: document.getElementById('flashcardBack').value.trim(),
+                    frontImage: document.getElementById('frontImagePreview').src || null,
+                    backImage: document.getElementById('backImagePreview').src || null,
+                    additionalInfo: document.getElementById('flashcardAdditionalInfo').value.trim() || null
+                };
+
+                if (!flashcard.front || !flashcard.back) {
+                    alert('Le recto et le verso sont obligatoires');
+                    return;
+                }
+
+                FlashcardManager.saveFlashcard(flashcard);
+                renderFlashcards();
+                closeModal('createFlashcardModal');
+            });
+
+            // Afficher les thèmes initiaux
+            renderThemes();
+        });
+
+        // Utilitaires modaux
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function openCreateFlashcardModal() {
+            const modal = document.getElementById('createFlashcardModal');
+            modal.style.display = 'flex';
+            document.getElementById('createFlashcardForm').reset();
+            document.getElementById('frontImagePreview').style.display = 'none';
+            document.getElementById('backImagePreview').style.display = 'none';
+        }
+
+        function openEditFlashcardModal(flashcardId) {
+            const flashcard = FlashcardManager.getAllFlashcards().find(f => f.id === flashcardId);
+            if (!flashcard) return;
+
+            const modal = document.getElementById('createFlashcardModal');
+            document.getElementById('flashcardFront').value = flashcard.front;
+            document.getElementById('flashcardBack').value = flashcard.back;
+            document.getElementById('flashcardAdditionalInfo').value = flashcard.additionalInfo || '';
+            
+            const frontPreview = document.getElementById('frontImagePreview');
+            const backPreview = document.getElementById('backImagePreview');
+
+            if (flashcard.frontImage) {
+                frontPreview.src = flashcard.frontImage;
+                frontPreview.style.display = 'block';
+            } else {
+                frontPreview.style.display = 'none';
+            }
+
+            if (flashcard.backImage) {
+                backPreview.src = flashcard.backImage;
+                backPreview.style.display = 'block';
+            } else {
+                backPreview.style.display = 'none';
+            }
+
+            modal.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

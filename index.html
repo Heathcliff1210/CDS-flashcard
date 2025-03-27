@@ -1,16 +1,215 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>replit</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎭 CDS FLASHCARD-BASE - Apprenez Différemment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5D3FD3;
+            --secondary-color: #FF6B6B;
+            --background-color: #F4F4F9;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Roboto', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            font-size: 16px;
+        }
+
+        .hero-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .hero-content {
+            max-width: 100%;
+            width: 100%;
+            padding: 0 15px;
+        }
+
+        .logo-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logo-emoji {
+            font-size: 2rem;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            color: rgba(255,255,255,0.9);
+            padding: 0 15px;
+        }
+
+        .cta-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            padding: 0 15px;
+        }
+
+        .cta-button {
+            background-color: white;
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 300px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        .features-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 2rem 15px;
+            background-color: white;
+        }
+
+        .feature-card {
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            padding: 20px;
+            background-color: var(--background-color);
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+        }
+
+        .vibrant-footer {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 480px) {
+            .logo-title {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 1.1rem;
+            }
+
+            .cta-button {
+                max-width: 400px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .features-section {
+                flex-direction: row;
+                justify-content: center;
+                gap: 30px;
+            }
+
+            .feature-card {
+                max-width: 300px;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  Hello world
-  <script src="script.js"></script>
-</body>
+    <header class="hero-header">
+        <div class="hero-content">
+            <h1 class="logo-title">
+                <span class="logo-emoji">🎭</span>
+                CDS FLASHCARD-BASE
+                <span class="logo-emoji">🎭</span>
+            </h1>
+            <p class="tagline">Mémorisation 3.0 - Apprenez à la vitesse de la lumière ⚡</p>
+            
+            <div class="cta-container">
+                <a href="dashboard.html" class="cta-button">
+                    Commencer l'aventure
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </header>
 
+    <main class="features-section">
+        <div class="feature-card">
+            <i class="fas fa-rocket"></i>
+            <h3>Apprentissage Intuitif</h3>
+            <p>Créez et révisez vos cartes en quelques clics rapides et efficaces</p>
+        </div>
+        
+        <div class="feature-card">
+            <i class="fas fa-brain"></i>
+            <h3>Mémoire Long Terme</h3>
+            <p>Algorithme de répétition espacée scientifiquement conçu pour optimiser la rétention</p>
+        </div>
+        
+        <div class="feature-card">
+            <i class="fas fa-palette"></i>
+            <h3>Personnalisation</h3>
+            <p>Cartes multimédias, thèmes personnalisables et expérience d'apprentissage unique</p>
+        </div>
+    </main>
+
+    <footer class="vibrant-footer">
+        <p>🚀 Développé avec passion par la Team CDS © 2024</p>
+    </footer>
+</body>
 </html>
