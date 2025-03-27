@@ -109,6 +109,28 @@
 
         .theme-card-content, .flashcard-content {
             padding: 15px;
+            cursor: pointer;
+        }
+
+        .card-text {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .card-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .info-text {
+            font-size: 0.9em;
+            color: #666;
+            border-top: 1px solid #eee;
+            margin-top: 10px;
+            padding-top: 10px;
         }
 
         .theme-card-actions, .flashcard-actions {
@@ -552,26 +574,25 @@
 
             container.innerHTML = flashcards.map(card => `
                 <div class="flashcard">
-                    <div class="flashcard-actions">
-                        <button class="action-btn" onclick="openEditFlashcardModal(${card.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn" onclick="deleteFlashcard(${card.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
                     <div class="flashcard-content">
                         <div class="flashcard-front">
-                            <p>${card.front}</p>
-                            ${card.frontImage ? `<img src="${card.frontImage}" alt="Image recto" class="image-preview">` : ''}
+                            <div class="flashcard-actions">
+                                <button class="action-btn" onclick="event.stopPropagation(); openEditFlashcardModal(${card.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn" onclick="event.stopPropagation(); deleteFlashcard(${card.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="card-text">${card.front}</div>
+                            ${card.frontImage ? `<img src="${card.frontImage}" alt="Image recto" class="card-image">` : ''}
                         </div>
                         <div class="flashcard-back" style="display:none;">
-                            <p>${card.back}</p>
-                            ${card.backImage ? `<img src="${card.backImage}" alt="Image verso" class="image-preview">` : ''}
+                            <div class="card-text">${card.back}</div>
+                            ${card.backImage ? `<img src="${card.backImage}" alt="Image verso" class="card-image">` : ''}
                             ${card.additionalInfo ? `
                                 <div class="additional-info">
-                                    <p><strong>Informations supplémentaires:</strong></p>
-                                    <p>${card.additionalInfo}</p>
+                                    <div class="info-text">${card.additionalInfo}</div>
                                 </div>
                             ` : ''}
                         </div>
@@ -787,6 +808,29 @@
             if (!flashcard) return;
 
             const modal = document.getElementById('createFlashcardModal');
+            const form = document.getElementById('createFlashcardForm');
+            
+            // Modifier le gestionnaire d'événements du formulaire temporairement
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                const updatedFlashcard = {
+                    id: flashcardId,
+                    themeId: currentThemeId,
+                    front: document.getElementById('flashcardFront').value.trim(),
+                    back: document.getElementById('flashcardBack').value.trim(),
+                    frontImage: document.getElementById('frontImagePreview').src || null,
+                    backImage: document.getElementById('backImagePreview').src || null,
+                    additionalInfo: document.getElementById('flashcardAdditionalInfo').value.trim() || null
+                };
+
+                FlashcardManager.saveFlashcard(updatedFlashcard);
+                renderFlashcards();
+                closeModal('createFlashcardModal');
+                
+                // Restaurer le gestionnaire d'événements par défaut
+                form.onsubmit = null;
+            };
+
             document.getElementById('flashcardFront').value = flashcard.front;
             document.getElementById('flashcardBack').value = flashcard.back;
             document.getElementById('flashcardAdditionalInfo').value = flashcard.additionalInfo || '';
