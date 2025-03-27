@@ -465,7 +465,9 @@
         // Gestion des thèmes
         function renderThemes() {
             const container = document.getElementById('themes-container');
-            const themes = ThemeManager.getThemes();
+            const urlParams = new URLSearchParams(window.location.search);
+            const deckId = parseInt(urlParams.get('deckId'));
+            const themes = ThemeManager.getThemes().filter(theme => theme.deckId === deckId);
             
             if (themes.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:var(--primary-color);">Aucun thème créé. Commencez par en créer un !</p>';
@@ -721,10 +723,13 @@
             // Formulaire de création de thème
             document.getElementById('createThemeForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const urlParams = new URLSearchParams(window.location.search);
+                const deckId = parseInt(urlParams.get('deckId'));
                 const theme = {
                     name: document.getElementById('themeName').value.trim(),
                     description: document.getElementById('themeDescription').value.trim() || null,
-                    image: document.getElementById('themeImagePreview').src || null
+                    image: document.getElementById('themeImagePreview').src || null,
+                    deckId: deckId
                 };
 
                 if (!theme.name) {
