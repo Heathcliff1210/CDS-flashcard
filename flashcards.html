@@ -216,7 +216,7 @@
     <div class="container">
         <div class="section-header">
             <h1 id="page-title">Thèmes</h1>
-            <button class="primary-btn" onclick="openCreateThemeModal()">
+            <button id="create-theme-btn" class="primary-btn" onclick="openCreateThemeModal()">
                 <i class="fas fa-plus"></i> Créer un thème
             </button>
         </div>
@@ -535,6 +535,7 @@
             document.getElementById('page-title').textContent = 'Flashcards';
             document.getElementById('theme-name').textContent = theme.name;
             document.getElementById('flashcards-section').style.display = 'block';
+            document.getElementById('create-theme-btn').style.display = 'none';
             
             renderFlashcards();
         }
