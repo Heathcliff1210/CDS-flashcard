@@ -415,7 +415,7 @@
             static saveDeck(deck) {
                 const decks = this.getDecks();
                 const existingDeckIndex = decks.findIndex(d => d.id === deck.id);
-                
+
                 if (existingDeckIndex !== -1) {
                     // Mettre à jour un deck existant
                     decks[existingDeckIndex] = deck;
@@ -423,7 +423,7 @@
                     // Ajouter un nouveau deck
                     decks.push(deck);
                 }
-                
+
                 localStorage.setItem('decks', JSON.stringify(decks));
             }
 
@@ -443,7 +443,7 @@
         function renderDecks() {
             const container = document.getElementById('decks-container');
             const decks = DeckManager.getDecks();
-            
+
             if (decks.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:var(--primary-color);">Aucun deck créé. Commencez par en créer un !</p>';
                 return;
