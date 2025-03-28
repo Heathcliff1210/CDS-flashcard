@@ -662,7 +662,7 @@ class StorageManager {
                             <p>${card.back}</p>
                             ${card.backImage ? `<img src="${card.backImage}" class="flashcard-image">` : ''}
                             ${card.additionalInfo ? `
-                                <div class="additional-info-toggle" onclick="toggleAdditionalInfo(this)">
+                                <div class="additional-info-toggle" onclick="toggleAdditionalInfo(event, this)">
                                     Afficher les informations supplémentaires
                                 </div>
                                 <div class="additional-info">
@@ -681,10 +681,10 @@ class StorageManager {
         }
 
         // Bascule des informations supplémentaires
-        function toggleAdditionalInfo(toggleElement) {
+        function toggleAdditionalInfo(event, toggleElement) {
+            event.stopPropagation(); // Empêcher la propagation du clic
             const additionalInfo = toggleElement.nextElementSibling;
-            const flashcard = toggleElement.closest('.flashcard');
-
+            
             // Basculer la visibilité des informations supplémentaires
             const isHidden = additionalInfo.style.display === 'none' || additionalInfo.style.display === '';
             additionalInfo.style.display = isHidden ? 'block' : 'none';
@@ -693,11 +693,6 @@ class StorageManager {
             toggleElement.textContent = isHidden 
                 ? 'Masquer les informations supplémentaires' 
                 : 'Afficher les informations supplémentaires';
-
-            // Retourner la flashcard si les informations supplémentaires sont affichées
-            if (isHidden) {
-                flashcard.classList.add('flipped');
-            }
         }
 
         // Suppression d'une flashcard avec confirmation
