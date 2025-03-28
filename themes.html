@@ -470,9 +470,8 @@
             static getCurrentDeckId() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const deckId = parseInt(urlParams.get('deckId'));
-                if (isNaN(deckId)) {
-                    console.error('ID de deck non valide');
-                    return null;
+                if (!deckId) {
+                    return 1; // Valeur par défaut si aucun ID n'est spécifié
                 }
                 return deckId;
             }
@@ -742,7 +741,7 @@
 
             // Configuration du bouton Enregistrer et Retourner
             document.getElementById('saveAndReturnBtn').addEventListener('click', () => {
-                window.location.href = 'index.html';
+                renderFlashcards();
             });
 
             renderFlashcards();
