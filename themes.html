@@ -482,6 +482,9 @@ class StorageManager {
                         return SessionManager.getThemes();
                     } else if (key === 'decks') {
                         return SessionManager.getDecks();
+                    } else if (key.startsWith('flashcards_')) {
+                        const deckId = key.split('_')[1];
+                        return SessionManager.getFlashcards(parseInt(deckId));
                     }
 
                     const item = localStorage.getItem(key);
@@ -498,10 +501,20 @@ class StorageManager {
             }
 
             static getFlashcards(deckId) {
+                if (!deckId) {
+                    console.error("Erreur: ID de deck manquant pour récupérer les flashcards");
+                    return [];
+                }
                 return SessionManager.getFlashcards(deckId);
             }
 
             static saveFlashcard(deckId, flashcard) {
+                if (!deckId) {
+                    console.error("Erreur: ID de deck manquant pour sauvegarder la flashcard");
+                    throw new Error("ID de deck manquant");
+                }
+                console.log(`Debug: Sauvegarde de flashcard pour le deck ${deckId}`, flashcard);
+                
                 const flashcards = this.getFlashcards(deckId);
                 const index = flashcards.findIndex(f => f.id === flashcard.id);
 
@@ -512,17 +525,23 @@ class StorageManager {
                 }
 
                 this.setItem(`flashcards_${deckId}`, flashcards);
+                return flashcards.length;
             }
 
             static setItem(key, value) {
                 try {
+                    console.log(`Debug: Enregistrement dans la clé ${key}`, value);
                     // Si c'est themes ou decks, utiliser SessionManager
                     if (key === 'themes') {
                         SessionManager.saveThemes(value);
                     } else if (key === 'decks') {
                         SessionManager.saveDecks(value);
                     } else if (key.startsWith('flashcards_')) {
-                        const deckId = key.split('_')[1];
+                        const deckId = parseInt(key.split('_')[1]);
+                        if (!deckId) {
+                            console.error("Erreur: ID de deck invalide dans la clé", key);
+                            return;
+                        }
                         SessionManager.saveFlashcards(deckId, value);
                     } else {
                         localStorage.setItem(key, JSON.stringify(value));
@@ -849,9 +868,17 @@ class StorageManager {
             // Récupérer l'ID du deck depuis l'URL
             currentDeckId = getCurrentDeckIdFromUrl();
             console.log("Debug: currentDeckId =", currentDeckId);
+            // Alternative de récupération si la première méthode échoue
             if (!currentDeckId) {
-                console.error("Erreur: Impossible de récupérer l'ID du deck");
-                return;
+                const urlParams = new URLSearchParams(window.location.search);
+                currentDeckId = parseInt(urlParams.get('deckId'));
+                console.log("Debug: Récupération alternative de currentDeckId =", currentDeckId);
+                
+                if (!currentDeckId) {
+                    console.error("Erreur: Impossible de récupérer l'ID du deck");
+                    alert("Erreur: Impossible d'identifier le deck pour enregistrer la flashcard");
+                    return;
+                }
             }
 
             // Récupérer et afficher le titre du deck
@@ -935,11 +962,20 @@ class StorageManager {
                 console.log("Debug: Nouvelle flashcard", newFlashcard);
                 
                 try {
+                    console.log("Debug: Tentative de sauvegarde dans le deck ID:", currentDeckId);
                     FlashcardManager.saveFlashcard(currentDeckId, newFlashcard);
+                    console.log("Debug: Flashcard sauvegardée avec succès");
+                    
                     flashcardCount++;
                     renderFlashcards();
                     closeCreateFlashcardModal();
                     alert("Flashcard créée avec succès!");
+                    
+                    // Forcer un second rafraîchissement après un court délai
+                    setTimeout(() => {
+                        console.log("Debug: Rafraîchissement forcé des flashcards");
+                        renderFlashcards();
+                    }, 250);
                 } catch (error) {
                     console.error("Erreur lors de l'enregistrement de la flashcard:", error);
                     alert("Erreur lors de la création de la flashcard. Veuillez réessayer.");
