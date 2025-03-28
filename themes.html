@@ -282,10 +282,15 @@
         }
 
         .image-preview {
+            display: none;
             max-width: 200px;
             max-height: 150px;
             object-fit: contain;
             margin-bottom: 10px;
+        }
+
+        .image-upload-container img {
+            display: none;
         }
 
         .submit-btn {
@@ -368,7 +373,7 @@
                         <button type="button" class="image-upload-btn" onclick="document.getElementById('frontImageUpload').click()">
                             <i class="fas fa-image"></i> Ajouter une image
                         </button>
-                        <img id="frontImagePreview" class="image-preview" style="display:none;">
+                        <img id="frontImagePreview" class="image-preview">
                     </div>
                 </div>
                 <div class="form-group">
@@ -379,7 +384,7 @@
                         <button type="button" class="image-upload-btn" onclick="document.getElementById('backImageUpload').click()">
                             <i class="fas fa-image"></i> Ajouter une image
                         </button>
-                        <img id="backImagePreview" class="image-preview" style="display:none;">
+                        <img id="backImagePreview" class="image-preview">
                     </div>
                 </div>
                 <div class="form-group">
@@ -410,7 +415,7 @@
                         <button type="button" class="image-upload-btn" onclick="document.getElementById('editFrontImageUpload').click()">
                             <i class="fas fa-image"></i> Modifier l'image
                         </button>
-                        <img id="editFrontImagePreview" class="image-preview" style="display:none;">
+                        <img id="editFrontImagePreview" class="image-preview">
                     </div>
                 </div>
                 <div class="form-group">
@@ -421,7 +426,7 @@
                         <button type="button" class="image-upload-btn" onclick="document.getElementById('editBackImageUpload').click()">
                             <i class="fas fa-image"></i> Modifier l'image
                         </button>
-                        <img id="editBackImagePreview" class="image-preview" style="display:none;">
+                        <img id="editBackImagePreview" class="image-preview">
                     </div>
                 </div>
                 <div class="form-group">
