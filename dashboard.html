@@ -498,9 +498,9 @@
 
         // Entrer dans un deck (pour créer des flashcards)
         function enterDeck(id) {
-            // Rediriger vers la page de création de flashcards pour ce deck
-            window.location.href = `flashcards.html?deckId=${id}`;
-        }
+                // Rediriger vers la page de visualisation des flashcards du deck
+                window.location.href = `view_flashcards.html?deckId=${id}`;
+            }
 
         // Gestion du modal de création de deck
         function openCreateDeckModal() {
