@@ -237,6 +237,23 @@
     <script src="session-manager.js"></script>
     <script src="script.js"></script>
     <script>
+        // Vérifie si SessionManager est disponible
+        if (typeof SessionManager === 'undefined') {
+            console.error("SessionManager n'est pas chargé correctement. Tentative de rechargement...");
+            // Recharger le script
+            const script = document.createElement('script');
+            script.src = 'session-manager.js';
+            script.onload = function() {
+                console.log("SessionManager rechargé avec succès");
+                // Recharger script.js qui dépend de session-manager.js
+                const scriptJs = document.createElement('script');
+                scriptJs.src = 'script.js';
+                document.head.appendChild(scriptJs);
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Vérifier si une clé de session existe déjà
             const existingKey = localStorage.getItem('currentSessionKey');
@@ -248,12 +265,13 @@
 
             // S'assurer que les gestionnaires d'événements sont correctement attachés
             document.getElementById('sessionActions').addEventListener('click', function(e) {
-                if (e.target.getAttribute('href') === '#' && e.target.textContent.includes('clé de session')) {
+                if (e.target.tagName === 'A') {
                     e.preventDefault();
-                    showSessionKeyInput();
-                } else if (e.target.getAttribute('href') === '#' && e.target.textContent.includes('nouvelle clé')) {
-                    e.preventDefault();
-                    generateNewSessionKey();
+                    if (e.target.textContent.includes('clé de session')) {
+                        showSessionKeyInput();
+                    } else if (e.target.textContent.includes('nouvelle clé')) {
+                        generateNewSessionKey();
+                    }
                 }
             });
         });
@@ -269,30 +287,48 @@
         function showSessionKeyInput() {
             const inputContainer = document.getElementById('sessionKeyInputContainer');
             inputContainer.style.display = 'flex';
-            return false; // Empêcher le comportement par défaut
         }
 
         function generateNewSessionKey() {
-            const newKey = SessionManager.createNewSession();
-            const sessionKeyDisplay = document.getElementById('sessionKeyDisplay');
-            const generatedKeySpan = document.getElementById('generatedKey');
+            try {
+                // Garantir que SessionManager est chargé
+                if (typeof SessionManager === 'undefined') {
+                    console.error("SessionManager n'est pas défini!");
+                    return;
+                }
+                
+                const newKey = SessionManager.createNewSession();
+                console.log("Nouvelle clé générée:", newKey);
+                
+                const sessionKeyDisplay = document.getElementById('sessionKeyDisplay');
+                const generatedKeySpan = document.getElementById('generatedKey');
 
-            // Afficher la clé générée
-            generatedKeySpan.textContent = newKey;
-            sessionKeyDisplay.style.display = 'block';
-
-            return false; // Empêcher le comportement par défaut du lien
+                // Afficher la clé générée
+                generatedKeySpan.textContent = newKey;
+                sessionKeyDisplay.style.display = 'block';
+            } catch (error) {
+                console.error("Erreur lors de la génération de la clé:", error);
+                alert("Erreur lors de la génération de la clé. Veuillez réessayer.");
+            }
         }
 
         function copySessionKey() {
             const keySpan = document.getElementById('generatedKey');
             const key = keySpan.textContent;
 
-            navigator.clipboard.writeText(key).then(() => {
+            try {
+                // Approche alternative compatible avec plus de navigateurs
+                const tempInput = document.createElement('input');
+                tempInput.value = key;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                
                 alert('Clé de session copiée!');
-            }, () => {
-                alert('Échec de la copie. Veuillez sélectionner et copier manuellement.');
-            });
+            } catch (err) {
+                alert('Échec de la copie. Veuillez sélectionner et copier manuellement: ' + key);
+            }
         }
 
         function loadSessionByKey() {
@@ -308,8 +344,12 @@
             const sessionData = localStorage.getItem(`session_${key}`);
 
             if (!sessionData) {
-                alert('Aucune session trouvée avec cette clé');
-                return;
+                // Si la session n'existe pas, la créer
+                localStorage.setItem(`session_${key}`, JSON.stringify({
+                    decks: [],
+                    themes: [],
+                    flashcards: {}
+                }));
             }
 
             // Définir cette clé comme clé de session actuelle
@@ -322,25 +362,54 @@
         function startAdventure() {
             // Si aucune clé de session n'existe, en créer une
             if (!localStorage.getItem('currentSessionKey')) {
-                const newKey = SessionManager.createNewSession();
+                try {
+                    // Garantir que SessionManager est chargé
+                    if (typeof SessionManager === 'undefined') {
+                        console.error("SessionManager n'est pas défini!");
+                        // Fallback si SessionManager n'est pas disponible
+                        const fallbackKey = Math.random().toString(36).substring(2, 15) + 
+                                          Math.random().toString(36).substring(2, 15);
+                        localStorage.setItem('currentSessionKey', fallbackKey);
+                        localStorage.setItem(`session_${fallbackKey}`, JSON.stringify({
+                            decks: [],
+                            themes: [],
+                            flashcards: {}
+                        }));
+                        window.location.href = 'acceuil.html';
+                        return;
+                    }
+                    
+                    const newKey = SessionManager.createNewSession();
+                    console.log("Nouvelle clé générée pour l'aventure:", newKey);
+                    
+                    // Afficher brièvement la clé avant de rediriger
+                    const sessionKeyDisplay = document.getElementById('sessionKeyDisplay');
+                    const generatedKeySpan = document.getElementById('generatedKey');
 
-                // Afficher brièvement la clé avant de rediriger
-                const sessionKeyDisplay = document.getElementById('sessionKeyDisplay');
-                const generatedKeySpan = document.getElementById('generatedKey');
+                    generatedKeySpan.textContent = newKey;
+                    sessionKeyDisplay.style.display = 'block';
 
-                generatedKeySpan.textContent = newKey;
-                sessionKeyDisplay.style.display = 'block';
-
-                // Attendre 1.5 secondes pour que l'utilisateur puisse voir la clé
-                setTimeout(() => {
+                    // Attendre 1.5 secondes pour que l'utilisateur puisse voir la clé
+                    setTimeout(() => {
+                        window.location.href = 'acceuil.html';
+                    }, 1500);
+                } catch (error) {
+                    console.error("Erreur lors du démarrage de l'aventure:", error);
+                    // Fallback si une erreur se produit
+                    const fallbackKey = Math.random().toString(36).substring(2, 15) + 
+                                      Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem('currentSessionKey', fallbackKey);
+                    localStorage.setItem(`session_${fallbackKey}`, JSON.stringify({
+                        decks: [],
+                        themes: [],
+                        flashcards: {}
+                    }));
                     window.location.href = 'acceuil.html';
-                }, 1500);
+                }
             } else {
                 // Si une clé existe déjà, rediriger directement
                 window.location.href = 'acceuil.html';
             }
-
-            return false; // Empêcher le comportement par défaut
         }
     </script>
 </body>
