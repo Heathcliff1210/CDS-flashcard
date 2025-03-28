@@ -437,12 +437,27 @@
                 }
             }
 
+            static getDeckThemes(deckId) {
+                const themes = this.getItem('themes', []);
+                return themes.filter(theme => theme.deckId === deckId);
+            }
+
             static setItem(key, value) {
                 try {
                     localStorage.setItem(key, JSON.stringify(value));
                 } catch (error) {
                     console.error('Erreur d\'écriture dans le stockage:', error);
                 }
+            }
+
+            static getCurrentDeckId() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const deckId = parseInt(urlParams.get('deckId'));
+                if (!deckId) {
+                    window.location.href = 'index.html';
+                    return null;
+                }
+                return deckId;
             }
         }
 
@@ -459,7 +474,7 @@
             static saveFlashcard(deckId, flashcard) {
                 const flashcards = this.getFlashcards(deckId);
                 const index = flashcards.findIndex(f => f.id === flashcard.id);
-                
+
                 if (index !== -1) {
                     // Mise à jour d'une flashcard existante
                     flashcards[index] = { ...flashcards[index], ...flashcard };
@@ -467,7 +482,7 @@
                     // Ajout d'une nouvelle flashcard
                     flashcards.push(flashcard);
                 }
-                
+
                 StorageManager.setItem(this.getKey(deckId), flashcards);
                 return flashcards.length;
             }
@@ -557,7 +572,7 @@
             const container = document.getElementById('flashcards-container');
             const saveAndReturnBtn = document.getElementById('saveAndReturnBtn');
             const flashcards = FlashcardManager.getFlashcards(currentDeckId);
-            
+
             flashcardCount = flashcards.length;
             saveAndReturnBtn.style.display = flashcardCount > 0 ? 'flex' : 'none';
 
@@ -607,16 +622,16 @@
         function toggleAdditionalInfo(toggleElement) {
             const additionalInfo = toggleElement.nextElementSibling;
             const flashcard = toggleElement.closest('.flashcard');
-            
+
             // Basculer la visibilité des informations supplémentaires
             const isHidden = additionalInfo.style.display === 'none' || additionalInfo.style.display === '';
             additionalInfo.style.display = isHidden ? 'block' : 'none';
-            
+
             // Basculer le texte du bouton
             toggleElement.textContent = isHidden 
                 ? 'Masquer les informations supplémentaires' 
                 : 'Afficher les informations supplémentaires';
-            
+
             // Retourner la flashcard si les informations supplémentaires sont affichées
             if (isHidden) {
                 flashcard.classList.add('flipped');
@@ -653,7 +668,7 @@
 
             const modal = document.getElementById('editFlashcardModal');
             const editForm = document.getElementById('editFlashcardForm');
-            
+
             // Remplir le formulaire
             document.getElementById('editFlashcardId').value = flashcard.id;
             document.getElementById('editFlashcardFront').value = flashcard.front;
@@ -692,19 +707,13 @@
             setupImageUpload('editBackImageUpload', 'editBackImagePreview');
 
             // Récupérer l'ID du deck depuis l'URL
-            const urlParams = new URLSearchParams(window.location.search);
-            currentDeckId = parseInt(urlParams.get('deckId'));
-
-            if (!currentDeckId) {
-                alert('Aucun deck spécifié');
-                window.location.href = 'index.html';
-                return;
-            }
+            currentDeckId = StorageManager.getCurrentDeckId();
+            if (!currentDeckId) return;
 
             // Récupérer et afficher le titre du deck
             const decks = StorageManager.getItem('decks', []);
             const deck = decks.find(d => d.id === currentDeckId);
-            
+
             if (deck) {
                 document.getElementById('deckTitle').textContent = deck.name;
             }
