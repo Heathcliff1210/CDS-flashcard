@@ -8,3 +8,16 @@ channel = "stable-23_11"
 [deployment]
 publicDir = "/"
 deploymentTarget = "static"
+run = ["sh", "-c", "npx serve -s ."]
+
+[workflows]
+runButton = "Serveur Web"
+
+[[workflows.workflow]]
+name = "Serveur Web"
+author = 40937354
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx serve -s ."

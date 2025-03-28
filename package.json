@@ -1,0 +1,15 @@
+
+{
+  "name": "cds-flashcard-base",
+  "version": "1.0.0",
+  "description": "Une application de flashcards pour l'apprentissage",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve",
+    "build": "echo 'Aucune étape de build nécessaire'"
+  },
+  "author": "Team CDS",
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+}
