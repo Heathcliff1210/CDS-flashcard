@@ -26,15 +26,24 @@
     getSessionKey: getSessionKey,
     generateSessionKey: generateSessionKey,
     createNewSession: function() {
+        console.log('Création d\'une nouvelle session...');
         const sessionKey = this.generateSessionKey();
-        localStorage.setItem('currentSessionKey', sessionKey);
-
-        // Initialiser les données de base pour cette session
-        localStorage.setItem(`session_${sessionKey}`, JSON.stringify({
-            decks: [],
-            themes: [],
-            flashcards: {}
-        }));
+        console.info('Nouvelle clé générée: ' + sessionKey);
+        
+        try {
+            localStorage.setItem('currentSessionKey', sessionKey);
+            console.log('Clé enregistrée dans localStorage');
+            
+            // Initialiser les données de base pour cette session
+            localStorage.setItem(`session_${sessionKey}`, JSON.stringify({
+                decks: [],
+                themes: [],
+                flashcards: {}
+            }));
+            console.info('Session initialisée avec succès');
+        } catch (error) {
+            console.error('Erreur lors de la création de la session: ' + error.message);
+        }
 
         return sessionKey;
     },

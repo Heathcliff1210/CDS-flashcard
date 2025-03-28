@@ -1,6 +1,8 @@
 
 // Main Application Script
 document.addEventListener('DOMContentLoaded', function() {
+  console.info('Application initialisée');
+  console.log('Vérification de la clé de session...');
   const startButton = document.getElementById('startButton');
   const sessionKeyInput = document.getElementById('sessionKeyInput');
   const createNewSessionBtn = document.getElementById('createNewSessionBtn');
