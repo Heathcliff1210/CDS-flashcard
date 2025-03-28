@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎭 CDS FLASHCARD-BASE - Tableau de Bord</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5D3FD3;
+            --secondary-color: #FF6B6B;
+            --background-color: #F4F4F9;
+            --text-color: #333;
+            --white: #FFFFFF;
+            --soft-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--soft-shadow);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .search-section {
+            background: white;
+            padding: 20px 0;
+            box-shadow: var(--soft-shadow);
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 30px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(93, 63, 211, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+        }
+
+        .decks-section {
+            padding: 30px 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .decks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .deck-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--soft-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 2px solid transparent;
+        }
+
+        .deck-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+
+        .deck-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .deck-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            text-decoration: none;
+            align-self: flex-start;
+        }
+
+        .action-btn:hover {
+            background-color: #4A31A6;
+        }
+
+        @media (max-width: 768px) {
+            .decks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-content">
+            <div class="logo">
+                <span class="logo-emoji">🎭</span>
+                CDS FLASHCARD-BASE
+            </div>
+            <a href="index.html" class="action-btn">
+                <i class="fas fa-home"></i>
+                Accueil
+            </a>
+        </div>
+    </header>
+
+    <section class="search-section">
+        <div class="container search-container">
+            <input type="text" class="search-input" placeholder="Rechercher un deck...">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+    </section>
+
+    <section class="decks-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-sticky-note"></i>
+                    Mes Flashcards
+                </h2>
+                <a href="dashboard.html" class="action-btn">
+                    <i class="fas fa-plus"></i>
+                    Afficher mes decks
+                </a>
+            </div>
+            <div class="decks-grid" id="decksContainer">
+                <!-- Deck cards will be dynamically populated if decks exist -->
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Empty state handling
+        const decksContainer = document.getElementById('decksContainer');
+        
+        // Check if user has decks (this would typically come from a backend/storage)
+        function checkDecks() {
+            const userDecks = JSON.parse(localStorage.getItem('userDecks') || '[]');
+            
+            if (userDecks.length === 0) {
+                decksContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; color: #666;">
+                        <p>Aucun deck pour le moment</p>
+                    </div>
+                `;
+            } else {
+                userDecks.forEach(deck => {
+                    const deckCard = document.createElement('div');
+                    deckCard.classList.add('deck-card');
+                    deckCard.innerHTML = `
+                        <div class="deck-title">${deck.title}</div>
+                        <div class="deck-details">
+                            <p>${deck.cards || 0} cartes</p>
+                            <p>Dernière révision : ${deck.lastRevised || 'Jamais'}</p>
+                        </div>
+                    `;
+                    decksContainer.appendChild(deckCard);
+                });
+            }
+        }
+
+        // Initialize
+        checkDecks();
+    </script>
+</body>
+</html>
