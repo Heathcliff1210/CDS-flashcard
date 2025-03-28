@@ -900,7 +900,7 @@ class StorageManager {
 
             if (readOnly) {
                 actionButtons.innerHTML = `
-                    <button class="primary-btn"` onclick="startRevision()">
+                    <button class="primary-btn" onclick="startRevision()">
                         <i class="fas fa-book"></i> Mode Révision
                     </button>
                 `;
@@ -973,18 +973,82 @@ class StorageManager {
 // Script de débogage pour les flashcards
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Debug: DOM chargé");
-    console.log("Debug: currentDeckId =", currentDeckId);
+    
+    // Définition des fonctions manquantes
+    if (typeof openCreateFlashcardModal !== 'function') {
+        window.openCreateFlashcardModal = function() {
+            const modal = document.getElementById('createFlashcardModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.querySelector('textarea').focus();
+            } else {
+                console.error("Modal non trouvé");
+            }
+        };
+    }
+    
+    // Vérifier si currentDeckId est défini
+    if (typeof currentDeckId === 'undefined') {
+        window.currentDeckId = StorageManager.getCurrentDeckId();
+        console.log("Debug: currentDeckId initialisé =", currentDeckId);
+    } else {
+        console.log("Debug: currentDeckId =", currentDeckId);
+    }
 
     const createForm = document.getElementById('createFlashcardForm');
     if (createForm) {
         console.log("Debug: Formulaire de création trouvé");
         createForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             console.log("Debug: Submit du formulaire détecté");
+            
+            const newFlashcard = {
+                id: Date.now(),
+                front: document.getElementById('flashcardFront').value.trim(),
+                back: document.getElementById('flashcardBack').value.trim(),
+                frontImage: document.getElementById('frontImagePreview').src || null,
+                backImage: document.getElementById('backImagePreview').src || null,
+                additionalInfo: document.getElementById('flashcardAdditionalInfo').value.trim() || null
+            };
+
+            console.log("Debug: Nouvelle flashcard", newFlashcard);
+
+            // Validation et enregistrement
+            if (!newFlashcard.front || !newFlashcard.back) {
+                alert('Le recto et le verso sont obligatoires');
+                return;
+            }
+
+            try {
+                FlashcardManager.saveFlashcard(currentDeckId, newFlashcard);
+                console.log("Debug: Flashcard sauvegardée avec succès");
+                closeCreateFlashcardModal();
+                renderFlashcards();
+            } catch (error) {
+                console.error("Erreur lors de la sauvegarde:", error);
+                alert("Erreur lors de la sauvegarde de la flashcard");
+            }
         });
     } else {
         console.error("Debug: Formulaire de création NON trouvé");
     }
 });
+
+// Définition de closeCreateFlashcardModal si elle n'existe pas
+if (typeof closeCreateFlashcardModal !== 'function') {
+    window.closeCreateFlashcardModal = function() {
+        const modal = document.getElementById('createFlashcardModal');
+        if (modal) {
+            modal.style.display = 'none';
+            const form = document.getElementById('createFlashcardForm');
+            if (form) form.reset();
+            const frontPreview = document.getElementById('frontImagePreview');
+            if (frontPreview) frontPreview.style.display = 'none';
+            const backPreview = document.getElementById('backImagePreview');
+            if (backPreview) backPreview.style.display = 'none';
+        }
+    };
+}
 </script>
 </body>
 </html>
