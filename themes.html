@@ -639,11 +639,12 @@ class StorageManager {
                     </div>
                     <div class="flashcard-inner">
                         <div class="flashcard-front">
-                            ${card.frontImage ? `<img src="${card.frontImage}" alt="Image recto" class="flashcard-image">` : ''}
                             <p>${card.front}</p>
+                            ${card.frontImage ? `<img src="${card.frontImage}" class="flashcard-image">` : ''}
                         </div>
                         <div class="flashcard-back">
-                            ${card.backImage ? `<img src="${card.backImage}" alt="Image verso" class="flashcard-image">` : ''}
+                            <p>${card.back}</p>
+                            ${card.backImage ? `<img src="${card.backImage}" class="flashcard-image">` : ''}
                             <p>${card.back}</p>
                             ${card.additionalInfo ? `
                                 <div class="additional-info-toggle" onclick="toggleAdditionalInfo(this)">
