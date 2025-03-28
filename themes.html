@@ -426,7 +426,36 @@
 
     <script>
         // Gestionnaire de stockage avec amélioration de la résilience
-        class StorageManager {
+        class ThemeManager {
+            static getThemes() {
+                return StorageManager.getItem('themes', []);
+            }
+
+            static saveTheme(theme) {
+                const themes = this.getThemes();
+                const index = themes.findIndex(t => t.id === theme.id);
+
+                if (index !== -1) {
+                    themes[index] = { ...themes[index], ...theme };
+                } else {
+                    theme.id = Date.now();
+                    themes.push(theme);
+                }
+                StorageManager.setItem('themes', themes);
+                return theme.id;
+            }
+
+            static deleteTheme(themeId) {
+                const themes = this.getThemes().filter(t => t.id !== themeId);
+                StorageManager.setItem('themes', themes);
+            }
+
+            static getThemeById(themeId) {
+                return this.getThemes().find(t => t.id === themeId);
+            }
+        }
+
+class StorageManager {
             static getItem(key, defaultValue = null) {
                 try {
                     const item = localStorage.getItem(key);
