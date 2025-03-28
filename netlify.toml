@@ -1,8 +1,34 @@
 
 [build]
-  publish = "/"
-  
+  publish = "./"
+  command = "npm install"
+
+[[redirects]]
+  from = "/acceuil"
+  to = "/acceuil.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard"
+  to = "/dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/flashcards"
+  to = "/flashcards.html"
+  status = 200
+
+[[redirects]]
+  from = "/themes"
+  to = "/themes.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  
+[headers]
+  for = "/*"
+    [headers.values]
+    Cache-Control = "no-cache"

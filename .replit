@@ -9,7 +9,7 @@ channel = "stable-23_11"
 [deployment]
 publicDir = "/"
 deploymentTarget = "static"
-run = ["sh", "-c", "npx serve . --single --no-clipboard --listen 0.0.0.0:8000"]
+run = ["sh", "-c", "npx serve . --listen 0.0.0.0:8000 --no-clipboard"]
 build = ["sh", "-c", "npm install"]
 
 [workflows]
@@ -69,7 +69,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx serve . --single --no-clipboard --listen 0.0.0.0:8000"
+args = "npx serve . --listen 8000 --no-clipboard"
 
 [[ports]]
 localPort = 3000
