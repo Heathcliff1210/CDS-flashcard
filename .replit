@@ -27,3 +27,7 @@ args = "npm install"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx serve -s ."
+
+[[ports]]
+localPort = 3000
+externalPort = 80
