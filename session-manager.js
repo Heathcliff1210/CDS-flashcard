@@ -1,6 +1,12 @@
 
 // Session Manager Module
 (function() {
+  // Vérifier si nous sommes dans un environnement navigateur
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    console.error("SessionManager: Environnement non supporté");
+    return;
+  }
+
   function generateSessionKey() {
     return Math.random().toString(36).substring(2, 15) + 
            Math.random().toString(36).substring(2, 15);
@@ -21,8 +27,16 @@
     return key;
   }
 
-  // Make functions available globally
+  // Initialiser le module
+  function init() {
+    console.log("Initialisation du SessionManager...");
+    // Vérifier si une clé de session existe déjà
+    getSessionKey();
+  }
+
+  // Exporter les fonctions
   window.SessionManager = {
+    init: init,
     getSessionKey: getSessionKey,
     generateSessionKey: generateSessionKey,
     createNewSession: function() {
@@ -105,4 +119,7 @@
         return true;
     }
   };
+
+  // Auto-initialisation
+  init();
 })();

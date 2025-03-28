@@ -3,6 +3,11 @@
 (function() {
   // Créer un élément pour afficher les logs
   function createDebugConsole() {
+    // Vérifier si la console existe déjà
+    if (document.getElementById('debug-console')) {
+      return document.getElementById('debug-console');
+    }
+    
     const debugConsole = document.createElement('div');
     debugConsole.id = 'debug-console';
     debugConsole.style.cssText = `
@@ -24,6 +29,7 @@
     
     // Bouton pour afficher/masquer la console
     const toggleButton = document.createElement('button');
+    toggleButton.id = 'debug-toggle';
     toggleButton.textContent = '🔍 Debug';
     toggleButton.style.cssText = `
       position: fixed;
@@ -56,7 +62,13 @@
   }
   
   // Initialiser quand le DOM est prêt
-  window.addEventListener('DOMContentLoaded', () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDebugConsole);
+  } else {
+    initDebugConsole();
+  }
+  
+  function initDebugConsole() {
     const debugConsole = createDebugConsole();
     
     // Intercepter les logs de la console
@@ -69,6 +81,8 @@
     
     // Fonction pour ajouter un message à notre console de débogage
     function logToDebugConsole(message, type = 'log') {
+      if (!debugConsole) return;
+      
       const entry = document.createElement('div');
       
       // Styliser selon le type de message
@@ -140,5 +154,5 @@
     
     // Message de démarrage
     console.info('Console de débogage initialisée');
-  });
+  }
 })();
