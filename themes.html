@@ -1002,22 +1002,35 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             console.log("Debug: Submit du formulaire détecté");
             
+            // Récupération directe des valeurs
+            const frontText = document.getElementById('flashcardFront').value;
+            const backText = document.getElementById('flashcardBack').value;
+            
+            console.log("Debug: Valeurs récupérées - front:", frontText, "back:", backText);
+            
+            // Vérification directe des valeurs
+            if (!frontText || frontText.trim() === "") {
+                alert('Le recto est obligatoire');
+                return;
+            }
+            
+            if (!backText || backText.trim() === "") {
+                alert('Le verso est obligatoire');
+                return;
+            }
+            
             const newFlashcard = {
                 id: Date.now(),
-                front: document.getElementById('flashcardFront').value.trim(),
-                back: document.getElementById('flashcardBack').value.trim(),
-                frontImage: document.getElementById('frontImagePreview').src || null,
-                backImage: document.getElementById('backImagePreview').src || null,
+                front: frontText.trim(),
+                back: backText.trim(),
+                frontImage: document.getElementById('frontImagePreview').style.display !== 'none' ? 
+                    document.getElementById('frontImagePreview').src : null,
+                backImage: document.getElementById('backImagePreview').style.display !== 'none' ? 
+                    document.getElementById('backImagePreview').src : null,
                 additionalInfo: document.getElementById('flashcardAdditionalInfo').value.trim() || null
             };
 
             console.log("Debug: Nouvelle flashcard", newFlashcard);
-
-            // Validation et enregistrement
-            if (!newFlashcard.front || !newFlashcard.back) {
-                alert('Le recto et le verso sont obligatoires');
-                return;
-            }
 
             try {
                 FlashcardManager.saveFlashcard(currentDeckId, newFlashcard);
