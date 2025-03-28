@@ -349,7 +349,16 @@
         }
 
         function openTheme(themeId) {
-            window.location.href = `themes.html?themeId=${themeId}`;
+            // Vérifier si on est en mode lecture seule
+            const urlParams = new URLSearchParams(window.location.search);
+            const isReadOnly = urlParams.get('mode') === 'readonly';
+            
+            // Préserver le mode lecture seule lors de la navigation
+            const url = isReadOnly 
+                ? `themes.html?themeId=${themeId}&mode=readonly` 
+                : `themes.html?themeId=${themeId}`;
+                
+            window.location.href = url;
         }
 
         function openCreateThemeModal() {
