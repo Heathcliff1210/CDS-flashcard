@@ -212,37 +212,59 @@
     </section>
 
     <script>
-        // Empty state handling
         const decksContainer = document.getElementById('decksContainer');
+        const searchInput = document.querySelector('.search-input');
         
-        // Check if user has decks (this would typically come from a backend/storage)
-        function checkDecks() {
-            const userDecks = JSON.parse(localStorage.getItem('userDecks') || '[]');
-            
-            if (userDecks.length === 0) {
+        function getPublicDecks() {
+            const allDecks = JSON.parse(localStorage.getItem('decks') || '[]');
+            return allDecks.filter(deck => deck.isPublic);
+        }
+        
+        function displayDecks(decks) {
+            if (decks.length === 0) {
                 decksContainer.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; color: #666;">
-                        <p>Aucun deck pour le moment</p>
+                        <p>Aucun deck public trouvé</p>
                     </div>
                 `;
-            } else {
-                userDecks.forEach(deck => {
-                    const deckCard = document.createElement('div');
-                    deckCard.classList.add('deck-card');
-                    deckCard.innerHTML = `
-                        <div class="deck-title">${deck.title}</div>
-                        <div class="deck-details">
-                            <p>${deck.cards || 0} cartes</p>
-                            <p>Dernière révision : ${deck.lastRevised || 'Jamais'}</p>
-                        </div>
-                    `;
-                    decksContainer.appendChild(deckCard);
-                });
+                return;
             }
+
+            decksContainer.innerHTML = '';
+            decks.forEach(deck => {
+                const deckCard = document.createElement('div');
+                deckCard.classList.add('deck-card');
+                deckCard.innerHTML = `
+                    <div class="deck-title">${deck.name}</div>
+                    <div class="deck-details">
+                        <p>${deck.description || ''}</p>
+                    </div>
+                `;
+                decksContainer.appendChild(deckCard);
+            });
         }
 
-        // Initialize
-        checkDecks();
+        function searchDecks(query) {
+            const publicDecks = getPublicDecks();
+            if (!query) {
+                displayDecks(publicDecks);
+                return;
+            }
+
+            const filteredDecks = publicDecks.filter(deck => 
+                deck.name.toLowerCase().includes(query.toLowerCase()) ||
+                (deck.description && deck.description.toLowerCase().includes(query.toLowerCase()))
+            );
+            displayDecks(filteredDecks);
+        }
+
+        // Événement de recherche
+        searchInput.addEventListener('input', (e) => {
+            searchDecks(e.target.value);
+        });
+
+        // Initialisation
+        searchDecks('');
     </script>
 </body>
 </html>

@@ -418,13 +418,22 @@
 
                 if (existingDeckIndex !== -1) {
                     // Mettre à jour un deck existant
-                    decks[existingDeckIndex] = deck;
+                    decks[existingDeckIndex] = {...deck, isPublic: deck.isPublic || false};
                 } else {
                     // Ajouter un nouveau deck
-                    decks.push(deck);
+                    decks.push({...deck, isPublic: false});
                 }
 
                 localStorage.setItem('decks', JSON.stringify(decks));
+            }
+
+            static toggleVisibility(id) {
+                const decks = this.getDecks();
+                const deck = decks.find(d => d.id === id);
+                if (deck) {
+                    deck.isPublic = !deck.isPublic;
+                    this.saveDeck(deck);
+                }
             }
 
             static deleteDeck(id) {
@@ -461,6 +470,9 @@
                             <button class="deck-action-btn" onclick="enterDeck(${deck.id})">
                                 <i class="fas fa-sign-in-alt"></i>
                             </button>
+                            <button class="deck-action-btn" onclick="toggleDeckVisibility(${deck.id})">
+                                <i class="fas ${deck.isPublic ? 'fa-lock-open' : 'fa-lock'}"></i>
+                            </button>
                             <button class="deck-action-btn" onclick="deleteDeck(${deck.id})">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -477,6 +489,11 @@
                 DeckManager.deleteDeck(id);
                 renderDecks();
             }
+        }
+
+        function toggleDeckVisibility(id) {
+            DeckManager.toggleVisibility(id);
+            renderDecks();
         }
 
         // Entrer dans un deck (pour créer des flashcards)
