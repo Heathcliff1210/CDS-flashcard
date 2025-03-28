@@ -22,7 +22,45 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx serve . --listen 8000"
+args = "npx serve . --listen 8000 --no-clipboard"
+
+[[workflows.workflow]]
+name = "Installation et Démarrage"
+author = 40937354
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx serve . --listen 8000 --no-clipboard"
+
+[[workflows.workflow]]
+name = "Dev Utils"
+author = 40937354
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"==== Informations Utiles ====\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📊 Version Node: $(node -v)\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📦 Version NPM: $(npm -v)\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"🔗 URL du serveur: http://0.0.0.0:8000\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"=============================\""
 
 [[ports]]
 localPort = 3000
@@ -31,6 +69,10 @@ externalPort = 80
 [[ports]]
 localPort = 8000
 externalPort = 8000
+
+[[ports]]
+localPort = 35269
+externalPort = 3002
 
 [[ports]]
 localPort = 35305
