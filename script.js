@@ -1,34 +1,37 @@
-// Charger les flashcards au démarrage
-document.addEventListener('DOMContentLoaded', loadFlashcards);
 
-function addFlashcard() {
-    const question = document.getElementById('question').value;
-    const reponse = document.getElementById('reponse').value;
-
-    if (question && reponse) {
-        createFlashcardElement(question, reponse);
-        saveFlashcard(question, reponse);
-        // Réinitialiser les champs
-        document.getElementById('question').value = '';
-        document.getElementById('reponse').value = '';
-    }
-}
-
-function createFlashcardElement(question, reponse) {
-    const flashcard = document.createElement('div');
-    flashcard.className = 'flashcard';
-    flashcard.innerHTML = `
-        <div class="front">${question}</div>
-        <div class="back" style="display: none;">${reponse}</div>
-        <div class="delete" onclick="deleteFlashcard(this)">✖</div>
-    `;
-
-    flashcard.addEventListener('click', function() {
-        const front = this.querySelector('.front');
-        const back = this.querySelector('.back');
-        front.style.display = front.style.display === 'none' ? 'block' : 'none';
-        back.style.display = back.style.display === 'none' ? 'block' : 'none';
+// Main Application Script
+document.addEventListener('DOMContentLoaded', function() {
+  const startButton = document.getElementById('startButton');
+  const sessionKeyInput = document.getElementById('sessionKeyInput');
+  const createNewSessionBtn = document.getElementById('createNewSessionBtn');
+  
+  // Get or create a session key when the page loads
+  const currentKey = window.SessionManager.getSessionKey();
+  
+  if (sessionKeyInput) {
+    sessionKeyInput.value = currentKey;
+  }
+  
+  // Create new session functionality
+  if (createNewSessionBtn) {
+    createNewSessionBtn.addEventListener('click', function() {
+      const newKey = window.SessionManager.generateSessionKey();
+      sessionKeyInput.value = newKey;
+      localStorage.setItem('currentSessionKey', newKey);
     });
-
-    document.getElementById('flashcards-container').appendChild(flashcard);
-}
+  }
+  
+  // Start button functionality
+  if (startButton) {
+    startButton.addEventListener('click', function() {
+      const enteredKey = sessionKeyInput.value.trim();
+      
+      if (enteredKey) {
+        localStorage.setItem('currentSessionKey', enteredKey);
+        window.location.href = 'acceuil.html';
+      } else {
+        alert('Veuillez entrer une clé de session valide.');
+      }
+    });
+  }
+});
