@@ -348,7 +348,7 @@
     </nav>
 
     <div class="container">
-        <button id="createFlashcardBtn" class="primary-btn" onclick="openCreateFlashcardModal()">
+        <button id="createFlashcardBtn" class="primary-btn" >
             <i class="fas fa-plus"></i> Créer une nouvelle flashcard
         </button>
 
@@ -830,22 +830,26 @@ class StorageManager {
             const createForm = document.getElementById('createFlashcardForm');
             createForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const newFlashcard = {
-                    id: Date.now(),
-                    front: document.getElementById('flashcardFront').value.trim(),
-                    back: document.getElementById('flashcardBack').value.trim(),
-                    frontImage: document.getElementById('frontImagePreview').src || null,
-                    backImage: document.getElementById('backImagePreview').src || null,
-                    additionalInfo: document.getElementById('flashcardAdditionalInfo').value.trim() || null
-                };
+                const frontText = document.getElementById('flashcardFront').value.trim();
+                const backText = document.getElementById('flashcardBack').value.trim();
+                const additionalInfo = document.getElementById('flashcardAdditionalInfo').value.trim() || null;
+                const frontImagePreview = document.getElementById('frontImagePreview');
+                const backImagePreview = document.getElementById('backImagePreview');
 
-                // Validation des champs
-                if (!newFlashcard.front || !newFlashcard.back) {
+                if (!frontText || !backText) {
                     alert('Le recto et le verso sont obligatoires');
                     return;
                 }
 
-                // Sauvegarder la flashcard et mettre à jour l'affichage
+                const newFlashcard = {
+                    id: Date.now(),
+                    front: frontText,
+                    back: backText,
+                    frontImage: frontImagePreview.style.display !== 'none' ? frontImagePreview.src : null,
+                    backImage: backImagePreview.style.display !== 'none' ? backImagePreview.src : null,
+                    additionalInfo: additionalInfo
+                };
+
                 FlashcardManager.saveFlashcard(currentDeckId, newFlashcard);
                 flashcardCount++;
                 renderFlashcards();
@@ -872,98 +876,6 @@ class StorageManager {
                 }
 
                 // Sauvegarder la flashcard modifiée
-
-<script>
-// Correction supplémentaire pour garantir que le formulaire fonctionne
-window.addEventListener('load', function() {
-    console.log("Correction appliquée au chargement de la page");
-    
-    // S'assurer que le bouton de création fonctionne correctement
-    const createBtn = document.getElementById('createFlashcardBtn');
-    if (createBtn) {
-        createBtn.onclick = function() {
-            console.log("Bouton de création cliqué");
-            const modal = document.getElementById('createFlashcardModal');
-            if (modal) {
-                modal.style.display = 'flex';
-                setTimeout(() => {
-                    const frontInput = document.getElementById('flashcardFront');
-                    if (frontInput) frontInput.focus();
-                }, 100);
-            }
-        };
-    }
-    
-    // Correction directe du formulaire
-    setTimeout(function() {
-        const form = document.getElementById('createFlashcardForm');
-        if (form) {
-            console.log("Réattachement de l'événement submit");
-            form.onsubmit = function(e) {
-                e.preventDefault();
-                console.log("Soumission via onsubmit");
-                
-                // Récupération directe des valeurs sans intermédiaire
-                const frontText = document.getElementById('flashcardFront').value;
-                const backText = document.getElementById('flashcardBack').value;
-                
-                console.log("Valeurs récupérées directement - front:", frontText, "back:", backText);
-                
-                // Validation stricte
-                if (!frontText || frontText.trim() === "") {
-                    alert('Le recto est obligatoire');
-                    return false;
-                }
-                
-                if (!backText || backText.trim() === "") {
-                    alert('Le verso est obligatoire');
-                    return false;
-                }
-                
-                // Créer la flashcard
-                const newFlashcard = {
-                    id: Date.now(),
-                    front: frontText.trim(),
-                    back: backText.trim(),
-                    frontImage: document.getElementById('frontImagePreview').style.display !== 'none' ? 
-                        document.getElementById('frontImagePreview').src : null,
-                    backImage: document.getElementById('backImagePreview').style.display !== 'none' ? 
-                        document.getElementById('backImagePreview').src : null,
-                    additionalInfo: document.getElementById('flashcardAdditionalInfo').value.trim() || null
-                };
-                
-                try {
-                    // Utilisation directe de la fonction FlashcardManager
-                    window.FlashcardManager.saveFlashcard(
-                        window.currentDeckId, 
-                        newFlashcard
-                    );
-                    
-                    // Fermer et actualiser
-                    if (typeof closeCreateFlashcardModal === 'function') {
-                        closeCreateFlashcardModal();
-                    } else {
-                        document.getElementById('createFlashcardModal').style.display = 'none';
-                    }
-                    
-                    if (typeof renderFlashcards === 'function') {
-                        renderFlashcards();
-                    } else {
-                        location.reload();
-                    }
-                    
-                    return false;
-                } catch (error) {
-                    console.error("Erreur de sauvegarde:", error);
-                    alert("Erreur lors de la sauvegarde");
-                    return false;
-                }
-            };
-        }
-    }, 1000);
-});
-</script>
-
                 FlashcardManager.saveFlashcard(currentDeckId, updatedFlashcard);
                 renderFlashcards();
                 closeEditFlashcardModal();
@@ -1061,142 +973,17 @@ window.addEventListener('load', function() {
         }
     </script>
     <script src="debug.js"></script>
-<script>
-// Script de débogage pour les flashcards
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("Debug: DOM chargé");
-
-    // Définition des fonctions manquantes
-    if (typeof openCreateFlashcardModal !== 'function') {
-        window.openCreateFlashcardModal = function() {
-            const modal = document.getElementById('createFlashcardModal');
-            if (modal) {
-                console.log("Debug: Ouverture du modal de création");
-                modal.style.display = 'flex';
-                
-                // Focus après un court délai pour s'assurer que le modal est visible
-                setTimeout(() => {
-                    const frontInput = document.getElementById('flashcardFront');
-                    if (frontInput) {
-                        frontInput.focus();
-                        console.log("Debug: Focus appliqué sur le champ recto");
-                    }
-                }, 100);
-            } else {
-                console.error("Modal non trouvé");
-            }
-        };
-    }
-
-    // Vérifier si currentDeckId est défini
-    if (typeof currentDeckId === 'undefined') {
-        window.currentDeckId = StorageManager.getCurrentDeckId();
-        console.log("Debug: currentDeckId initialisé =", currentDeckId);
-    } else {
-        console.log("Debug: currentDeckId =", currentDeckId);
-    }
-
-    // Initialisation du formulaire de création après chargement complet du DOM
-    setTimeout(() => {
-        const createForm = document.getElementById('createFlashcardForm');
-        if (createForm) {
-            console.log("Debug: Formulaire de création trouvé et initialisé");
-            
-            // Supprimer tous les event listeners existants
-            const newForm = createForm.cloneNode(true);
-            createForm.parentNode.replaceChild(newForm, createForm);
-            
-            // Attacher le nouvel event listener
-            newForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                console.log("Debug: Soumission du formulaire détectée");
-                
-                // Accéder directement aux éléments du DOM
-                const frontInput = document.getElementById('flashcardFront');
-                const backInput = document.getElementById('flashcardBack');
-                
-                // Afficher les valeurs réelles pour le débogage
-                console.log("Debug: Contenu du champ recto:", frontInput ? frontInput.value : "Non trouvé");
-                console.log("Debug: Contenu du champ verso:", backInput ? backInput.value : "Non trouvé");
-                
-                // Validation avec contrôles renforcés
-                if (!frontInput || !frontInput.value || frontInput.value.trim() === "") {
-                    console.error("Debug: Validation échouée - Recto manquant");
-                    alert('Le recto est obligatoire');
-                    return false;
-                }
-                
-                if (!backInput || !backInput.value || backInput.value.trim() === "") {
-                    console.error("Debug: Validation échouée - Verso manquant");
-                    alert('Le verso est obligatoire');
-                    return false;
-                }
-                
-                // Construction de l'objet flashcard avec les valeurs validées
-                const frontValue = frontInput.value.trim();
-                const backValue = backInput.value.trim();
-                const additionalInfoInput = document.getElementById('flashcardAdditionalInfo');
-                const frontImagePreview = document.getElementById('frontImagePreview');
-                const backImagePreview = document.getElementById('backImagePreview');
-                
-                const newFlashcard = {
-                    id: Date.now(),
-                    front: frontValue,
-                    back: backValue,
-                    frontImage: (frontImagePreview && frontImagePreview.style.display !== 'none') ? 
-                        frontImagePreview.src : null,
-                    backImage: (backImagePreview && backImagePreview.style.display !== 'none') ? 
-                        backImagePreview.src : null,
-                    additionalInfo: (additionalInfoInput && additionalInfoInput.value) ? 
-                        additionalInfoInput.value.trim() : null
+    <script>
+        // S'assurer que le bouton de création fonctionne
+        document.addEventListener('DOMContentLoaded', function() {
+            const createButton = document.getElementById('createFlashcardBtn');
+            if (createButton) {
+                createButton.onclick = function() {
+                    const modal = document.getElementById('createFlashcardModal');
+                    if (modal) modal.style.display = 'flex';
                 };
-                
-                console.log("Debug: Nouvelle flashcard créée avec succès:", newFlashcard);
-                
-                try {
-                    // Sauvegarder la flashcard
-                    FlashcardManager.saveFlashcard(currentDeckId, newFlashcard);
-                    console.log("Debug: Flashcard sauvegardée avec succès");
-                    
-                    // Fermer le modal et rafraîchir l'affichage
-                    closeCreateFlashcardModal();
-                    renderFlashcards();
-                } catch (error) {
-                    console.error("Erreur lors de la sauvegarde:", error);
-                    alert("Erreur lors de la sauvegarde de la flashcard");
-                }
-            });
-            
-            // Activer le monitoring pour le débogage
-            window.monitorFormSubmission('createFlashcardForm');
-        } else {
-            console.error("Debug: Formulaire de création NON trouvé");
-        }
-    }, 500); // Délai pour s'assurer que tous les éléments sont chargés
-});
-
-// Définition de closeCreateFlashcardModal si elle n'existe pas
-if (typeof closeCreateFlashcardModal !== 'function') {
-    window.closeCreateFlashcardModal = function() {
-        console.log("Debug: Fermeture du modal");
-        const modal = document.getElementById('createFlashcardModal');
-        if (modal) {
-            modal.style.display = 'none';
-            const form = document.getElementById('createFlashcardForm');
-            if (form) {
-                form.reset();
-                console.log("Debug: Formulaire réinitialisé");
             }
-            
-            // Réinitialiser les prévisualisations d'images
-            const frontPreview = document.getElementById('frontImagePreview');
-            if (frontPreview) frontPreview.style.display = 'none';
-            
-            const backPreview = document.getElementById('backImagePreview');
-            if (backPreview) backPreview.style.display = 'none';
-        }
-    };
-}
-</script>
+        });
+    </script>
 </body>
 </html>
