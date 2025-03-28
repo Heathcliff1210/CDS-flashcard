@@ -210,9 +210,9 @@
     <div class="container">
         <div class="section-header">
             <h1>Thèmes</h1>
-            <button class="primary-btn" onclick="openCreateThemeModal()">
-                <i class="fas fa-plus"></i> Créer un thème
-            </button>
+            <div id="actionButtons">
+                <!-- Les boutons seront ajoutés dynamiquement selon le mode -->
+            </div>
         </div>
 
         <div id="themes-container" class="themes-grid">
@@ -328,14 +328,16 @@
                         <h3>${theme.name}</h3>
                         ${theme.description ? `<p>${theme.description}</p>` : ''}
                     </div>
-                    <div class="theme-card-actions">
-                        <button class="action-btn" onclick="event.stopPropagation(); openEditThemeModal(${theme.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn" onclick="event.stopPropagation(); deleteTheme(${theme.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+                    ${!isReadOnlyMode() ? `
+                        <div class="theme-card-actions">
+                            <button class="action-btn" onclick="event.stopPropagation(); openEditThemeModal(${theme.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn" onclick="event.stopPropagation(); deleteTheme(${theme.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
         }
@@ -389,8 +391,39 @@
             }
         }
 
+        // Vérifier si on est en mode lecture seule
+        function isReadOnlyMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('mode') === 'readonly';
+        }
+
+        // Configurer l'interface selon le mode
+        function setupInterface() {
+            const actionButtons = document.getElementById('actionButtons');
+            if (isReadOnlyMode()) {
+                actionButtons.innerHTML = `
+                    <button class="primary-btn" onclick="startRevision()">
+                        <i class="fas fa-book"></i> Mode Révision
+                    </button>
+                `;
+            } else {
+                actionButtons.innerHTML = `
+                    <button class="primary-btn" onclick="openCreateThemeModal()">
+                        <i class="fas fa-plus"></i> Créer un thème
+                    </button>
+                `;
+            }
+        }
+
+        function startRevision() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const deckId = urlParams.get('deckId');
+            window.location.href = `revision.html?deckId=${deckId}`;
+        }
+
         // Événements d'initialisation
         document.addEventListener('DOMContentLoaded', () => {
+            setupInterface();
             document.getElementById('themeImageUpload').addEventListener('change', async (e) => {
                 await handleImageUpload(e.target, document.getElementById('themeImagePreview'));
             });

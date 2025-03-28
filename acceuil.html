@@ -235,10 +235,14 @@
                 const deckCard = document.createElement('div');
                 deckCard.classList.add('deck-card');
                 deckCard.innerHTML = `
+                    ${deck.coverImage ? `<img src="${deck.coverImage}" alt="${deck.name}" class="deck-cover">` : ''}
                     <div class="deck-title">${deck.name}</div>
                     <div class="deck-details">
                         <p>${deck.description || ''}</p>
                     </div>
+                    <button class="action-btn" onclick="viewPublicDeck(${deck.id})">
+                        <i class="fas fa-eye"></i> Voir le deck
+                    </button>
                 `;
                 decksContainer.appendChild(deckCard);
             });
@@ -265,6 +269,10 @@
 
         // Initialisation
         searchDecks('');
+
+        function viewPublicDeck(deckId) {
+            window.location.href = `flashcards.html?deckId=${deckId}&mode=readonly`;
+        }
     </script>
 </body>
 </html>
