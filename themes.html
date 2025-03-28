@@ -630,7 +630,7 @@ class StorageManager {
         }
 
         // Rendu des flashcards
-        function renderFlashcards(themeId) {
+        function renderFlashcards() {
             const container = document.getElementById('flashcards-container');
             const saveAndReturnBtn = document.getElementById('saveAndReturnBtn');
             const flashcards = FlashcardManager.getFlashcards(currentDeckId);
@@ -684,7 +684,7 @@ class StorageManager {
         function toggleAdditionalInfo(event, toggleElement) {
             event.stopPropagation(); // Empêcher la propagation du clic
             const additionalInfo = toggleElement.nextElementSibling;
-
+            
             // Basculer la visibilité des informations supplémentaires
             const isHidden = additionalInfo.style.display === 'none' || additionalInfo.style.display === '';
             additionalInfo.style.display = isHidden ? 'block' : 'none';
@@ -785,22 +785,7 @@ class StorageManager {
                 renderFlashcards();
             });
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const themes = ThemeManager.getThemes();
-            const currentThemeId = parseInt(urlParams.get('themeId'));
-            const isViewMode = urlParams.get('mode') === 'readonly';
-            if (!currentThemeId) return;
-
-            const currentTheme = themes.find(theme => theme.id === currentThemeId);
-            if (!currentTheme) return;
-
-            if (isViewMode) {
-                document.querySelector('.primary-btn').style.display = 'none';
-                const actionButtons = document.querySelectorAll('.flashcard-action-btn');
-                actionButtons.forEach(btn => btn.style.display = 'none');
-            }
-
-            renderFlashcards(currentTheme.id);
+            renderFlashcards();
 
             // Gestion du formulaire de création de flashcard
             const createForm = document.getElementById('createFlashcardForm');
