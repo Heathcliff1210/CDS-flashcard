@@ -348,7 +348,7 @@
     </nav>
 
     <div class="container">
-        <button class="primary-btn" onclick="openCreateFlashcardModal()">
+        <button id="createFlashcardBtn" class="primary-btn" onclick="openCreateFlashcardModal()">
             <i class="fas fa-plus"></i> Créer une nouvelle flashcard
         </button>
 
@@ -641,6 +641,11 @@ class StorageManager {
 
             // Masquer les boutons d'action en mode view
             if (isViewMode) {
+                // Masquer tous les boutons de création/modification
+                const createFlashcardBtn = document.getElementById('createFlashcardBtn');
+                if (createFlashcardBtn) {
+                    createFlashcardBtn.style.display = 'none';
+                }
                 document.querySelector('.primary-btn').style.display = 'none';
                 saveAndReturnBtn.style.display = 'none';
                 const actionButtons = document.querySelectorAll('.flashcard-action-btn');
