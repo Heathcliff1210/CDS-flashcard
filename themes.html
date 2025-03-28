@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🃏 CDS FLASHCARD-BASE - Flashcards</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5D3FD3;
+            --secondary-color: #FF6B6B;
+            --background-color: #F4F4F9;
+            --text-color: #333;
+            --card-background: #F0F4F8;
+            --accent-color: #6A5ACD;
+            --gradient-background: linear-gradient(135deg, #E6E9F0 0%, #EEF1F5 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            font-size: 16px;
+        }
+
+        .dashboard-nav {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            gap: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 15px;
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            align-self: flex-start;
+        }
+
+        .primary-btn:hover {
+            background-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .flashcards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .flashcard {
+            perspective: 1000px;
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, 
+        .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            padding: 20px;
+            background: var(--gradient-background);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-image {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .flashcard-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .flashcard-action-btn {
+            background: rgba(93, 63, 211, 0.1);
+            border: none;
+            color: var(--primary-color);
+            padding: 5px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flashcard-action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .additional-info {
+            background-color: rgba(93, 63, 211, 0.05);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+            width: 100%;
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .additional-info-toggle {
+            color: var(--primary-color);
+            cursor: pointer;
+            text-align: center;
+            padding: 5px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .image-upload-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 150px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--accent-color);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .flashcards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="dashboard-nav">
+        <a href="index.html" class="nav-logo">
+            <span class="logo-emoji">🃏</span>
+            CDS FLASHCARD-BASE
+        </a>
+        <div class="nav-actions">
+            <button id="saveAndReturnBtn" class="primary-btn" style="display:none;">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+            <button id="reviewModeBtn" class="primary-btn">
+                <i class="fas fa-book-reader"></i> Mode Révision
+            </button>
+            <div id="deckTitle"></div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <button class="primary-btn" onclick="openCreateFlashcardModal()">
+            <i class="fas fa-plus"></i> Créer une nouvelle flashcard
+        </button>
+
+        <div class="flashcards-grid" id="flashcards-container">
+            <!-- Les flashcards seront générées dynamiquement ici -->
+        </div>
+    </div>
+
+    <!-- Modal de création de flashcard -->
+    <div id="createFlashcardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Créer une nouvelle flashcard</h2>
+                <button class="close-modal" onclick="closeCreateFlashcardModal()">×</button>
+            </div>
+            <form id="createFlashcardForm">
+                <div class="form-group">
+                    <label for="flashcardFront">Recto de la carte</label>
+                    <textarea id="flashcardFront" placeholder="Entrez le texte du recto" required maxlength="500"></textarea>
+                    <div class="image-upload-container">
+                        <input type="file" id="frontImageUpload" accept="image/*" style="display:none;">
+                        <button type="button" class="image-upload-btn" onclick="document.getElementById('frontImageUpload').click()">
+                            <i class="fas fa-image"></i> Ajouter une image
+                        </button>
+                        <img id="frontImagePreview" class="image-preview" style="display:none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="flashcardBack">Verso de la carte</label>
+                    <textarea id="flashcardBack" placeholder="Entrez le texte du verso" required maxlength="500"></textarea>
+                    <div class="image-upload-container">
+                        <input type="file" id="backImageUpload" accept="image/*" style="display:none;">
+                        <button type="button" class="image-upload-btn" onclick="document.getElementById('backImageUpload').click()">
+                            <i class="fas fa-image"></i> Ajouter une image
+                        </button>
+                        <img id="backImagePreview" class="image-preview" style="display:none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="flashcardAdditionalInfo">Informations supplémentaires</label>
+                    <textarea id="flashcardAdditionalInfo" placeholder="Entrez des informations complémentaires (optionnel)" maxlength="1000"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-plus-circle"></i> Ajouter la flashcard
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal d'édition de flashcard -->
+    <div id="editFlashcardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier la flashcard</h2>
+                <button class="close-modal" onclick="closeEditFlashcardModal()">×</button>
+            </div>
+            <form id="editFlashcardForm">
+                <input type="hidden" id="editFlashcardId">
+                <div class="form-group">
+                    <label for="editFlashcardFront">Recto de la carte</label>
+                    <textarea id="editFlashcardFront" required maxlength="500"></textarea>
+                    <div class="image-upload-container">
+                        <input type="file" id="editFrontImageUpload" accept="image/*" style="display:none;">
+                        <button type="button" class="image-upload-btn" onclick="document.getElementById('editFrontImageUpload').click()">
+                            <i class="fas fa-image"></i> Modifier l'image
+                        </button>
+                        <img id="editFrontImagePreview" class="image-preview" style="display:none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editFlashcardBack">Verso de la carte</label>
+                    <textarea id="editFlashcardBack" required maxlength="500"></textarea>
+                    <div class="image-upload-container">
+                        <input type="file" id="editBackImageUpload" accept="image/*" style="display:none;">
+                        <button type="button" class="image-upload-btn" onclick="document.getElementById('editBackImageUpload').click()">
+                            <i class="fas fa-image"></i> Modifier l'image
+                        </button>
+                        <img id="editBackImagePreview" class="image-preview" style="display:none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editFlashcardAdditionalInfo">Informations supplémentaires</label>
+                    <textarea id="editFlashcardAdditionalInfo" placeholder="Entrez des informations complémentaires (optionnel)" maxlength="1000"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Enregistrer les modifications
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Gestionnaire de stockage avec amélioration de la résilience
+        class StorageManager {
+            static getItem(key, defaultValue = null) {
+                try {
+                    const item = localStorage.getItem(key);
+                    return item ? JSON.parse(item) : defaultValue;
+                } catch (error) {
+                    console.error('Erreur de lecture du stockage:', error);
+                    return defaultValue;
+                }
+            }
+
+            static setItem(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (error) {
+                    console.error('Erreur d\'écriture dans le stockage:', error);
+                }
+            }
+        }
+
+        // Gestion des flashcards améliorée
+        class FlashcardManager {
+            static getKey(deckId) {
+                return `flashcards_${deckId}`;
+            }
+
+            static getFlashcards(deckId) {
+                return StorageManager.getItem(this.getKey(deckId), []);
+            }
+
+            static saveFlashcard(deckId, flashcard) {
+                const flashcards = this.getFlashcards(deckId);
+                const index = flashcards.findIndex(f => f.id === flashcard.id);
+                
+                if (index !== -1) {
+                    // Mise à jour d'une flashcard existante
+                    flashcards[index] = { ...flashcards[index], ...flashcard };
+                } else {
+                    // Ajout d'une nouvelle flashcard
+                    flashcards.push(flashcard);
+                }
+                
+                StorageManager.setItem(this.getKey(deckId), flashcards);
+                return flashcards.length;
+            }
+
+            static deleteFlashcard(deckId, id) {
+                const flashcards = this.getFlashcards(deckId)
+                    .filter(f => f.id !== id);
+                StorageManager.setItem(this.getKey(deckId), flashcards);
+            }
+
+            static getFlashcardById(deckId, id) {
+                return this.getFlashcards(deckId)
+                    .find(f => f.id === id);
+            }
+        }
+
+        // Variables globales
+        let currentDeckId = null;
+        let flashcardCount = 0;
+
+        // Gestion des prévisualisations d'images
+        function setupImageUpload(fileInputId, previewImageId, maxSizeInMB = 5) {
+            const fileInput = document.getElementById(fileInputId);
+            const imagePreview = document.getElementById(previewImageId);
+
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                // Validation de la taille du fichier
+                if (file.size > maxSizeInMB * 1024 * 1024) {
+                    alert(`Le fichier ne doit pas dépasser ${maxSizeInMB} Mo`);
+                    fileInput.value = ''; // Réinitialiser l'input
+                    return;
+                }
+
+                // Validation du type de fichier
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Seuls les fichiers image (JPEG, PNG, GIF, WebP) sont autorisés');
+                    fileInput.value = ''; // Réinitialiser l'input
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Redimensionner l'image si nécessaire
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxWidth = 300;
+                        const maxHeight = 200;
+                        let width = img.width;
+                        let height = img.height;
+
+                        // Redimensionner tout en gardant les proportions
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height *= maxWidth / width;
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width *= maxHeight / height;
+                                height = maxHeight;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        imagePreview.src = canvas.toDataURL(file.type);
+                        imagePreview.style.display = 'block';
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            return fileInput;
+        }
+
+        // Rendu des flashcards
+        function renderFlashcards() {
+            const container = document.getElementById('flashcards-container');
+            const saveAndReturnBtn = document.getElementById('saveAndReturnBtn');
+            const flashcards = FlashcardManager.getFlashcards(currentDeckId);
+            
+            flashcardCount = flashcards.length;
+            saveAndReturnBtn.style.display = flashcardCount > 0 ? 'flex' : 'none';
+
+            if (flashcards.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--primary-color);">Aucune flashcard créée. Commencez par en créer une !</p>';
+                return;
+            }
+
+            container.innerHTML = flashcards.map(card => `
+                <div class="flashcard" onclick="toggleFlashcard(this)">
+                    <div class="flashcard-actions">
+                        <button class="flashcard-action-btn" onclick="event.stopPropagation(); openEditFlashcardModal(${card.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="flashcard-action-btn" onclick="event.stopPropagation(); deleteFlashcard(${card.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <p>${card.front}</p>
+                            ${card.frontImage ? `<img src="${card.frontImage}" alt="Image recto" class="flashcard-image">` : ''}
+                        </div>
+                        <div class="flashcard-back">
+                            <p>${card.back}</p>
+                            ${card.backImage ? `<img src="${card.backImage}" alt="Image verso" class="flashcard-image">` : ''}
+                            ${card.additionalInfo ? `
+                                <div class="additional-info-toggle" onclick="toggleAdditionalInfo(this)">
+                                    Afficher les informations supplémentaires
+                                </div>
+                                <div class="additional-info">
+                                    ${card.additionalInfo}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Bascule de la flashcard (recto/verso)
+        function toggleFlashcard(flashcardElement) {
+            flashcardElement.classList.toggle('flipped');
+        }
+
+        // Bascule des informations supplémentaires
+        function toggleAdditionalInfo(toggleElement) {
+            const additionalInfo = toggleElement.nextElementSibling;
+            const flashcard = toggleElement.closest('.flashcard');
+            
+            // Basculer la visibilité des informations supplémentaires
+            const isHidden = additionalInfo.style.display === 'none' || additionalInfo.style.display === '';
+            additionalInfo.style.display = isHidden ? 'block' : 'none';
+            
+            // Basculer le texte du bouton
+            toggleElement.textContent = isHidden 
+                ? 'Masquer les informations supplémentaires' 
+                : 'Afficher les informations supplémentaires';
+            
+            // Retourner la flashcard si les informations supplémentaires sont affichées
+            if (isHidden) {
+                flashcard.classList.add('flipped');
+            }
+        }
+
+        // Suppression d'une flashcard avec confirmation
+        function deleteFlashcard(id) {
+            const confirmDelete = window.confirm('Voulez-vous vraiment supprimer cette flashcard ?');
+            if (confirmDelete) {
+                FlashcardManager.deleteFlashcard(currentDeckId, id);
+                renderFlashcards();
+            }
+        }
+
+        // Gestion des modaux avec accessibilité
+        function openCreateFlashcardModal() {
+            const modal = document.getElementById('createFlashcardModal');
+            modal.style.display = 'flex';
+            modal.querySelector('textarea').focus();
+        }
+
+        function closeCreateFlashcardModal() {
+            const modal = document.getElementById('createFlashcardModal');
+            modal.style.display = 'none';
+            document.getElementById('createFlashcardForm').reset();
+            document.getElementById('frontImagePreview').style.display = 'none';
+            document.getElementById('backImagePreview').style.display = 'none';
+        }
+
+        function openEditFlashcardModal(id) {
+            const flashcard = FlashcardManager.getFlashcardById(currentDeckId, id);
+            if (!flashcard) return;
+
+            const modal = document.getElementById('editFlashcardModal');
+            const editForm = document.getElementById('editFlashcardForm');
+            
+            // Remplir le formulaire
+            document.getElementById('editFlashcardId').value = flashcard.id;
+            document.getElementById('editFlashcardFront').value = flashcard.front;
+            document.getElementById('editFlashcardBack').value = flashcard.back;
+            document.getElementById('editFlashcardAdditionalInfo').value = flashcard.additionalInfo || '';
+
+            // Gestion des images
+            const frontPreview = document.getElementById('editFrontImagePreview');
+            const backPreview = document.getElementById('editBackImagePreview');
+
+            frontPreview.src = flashcard.frontImage || '';
+            frontPreview.style.display = flashcard.frontImage ? 'block' : 'none';
+
+            backPreview.src = flashcard.backImage || '';
+            backPreview.style.display = flashcard.backImage ? 'block' : 'none';
+
+            // Afficher le modal
+            modal.style.display = 'flex';
+            editForm.querySelector('textarea').focus();
+        }
+
+        function closeEditFlashcardModal() {
+            const modal = document.getElementById('editFlashcardModal');
+            modal.style.display = 'none';
+            document.getElementById('editFlashcardForm').reset();
+            document.getElementById('editFrontImagePreview').style.display = 'none';
+            document.getElementById('editBackImagePreview').style.display = 'none';
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configurer les uploads d'images
+            setupImageUpload('frontImageUpload', 'frontImagePreview');
+            setupImageUpload('backImageUpload', 'backImagePreview');
+            setupImageUpload('editFrontImageUpload', 'editFrontImagePreview');
+            setupImageUpload('editBackImageUpload', 'editBackImagePreview');
+
+            // Récupérer l'ID du deck depuis l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentDeckId = parseInt(urlParams.get('deckId'));
+
+            if (!currentDeckId) {
+                alert('Aucun deck spécifié');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Récupérer et afficher le titre du deck
+            const decks = StorageManager.getItem('decks', []);
+            const deck = decks.find(d => d.id === currentDeckId);
+            
+            if (deck) {
+                document.getElementById('deckTitle').textContent = deck.name;
+            }
+
+            // Configuration du bouton de mode révision
+            document.getElementById('reviewModeBtn').addEventListener('click', () => {
+                window.location.href = `revision.html?deckId=${currentDeckId}`;
+            });
+
+            // Configuration du bouton Enregistrer et Retourner
+            document.getElementById('saveAndReturnBtn').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+
+            renderFlashcards();
+
+            // Gestion du formulaire de création de flashcard
+            const createForm = document.getElementById('createFlashcardForm');
+            createForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newFlashcard = {
+                    id: Date.now(),
+                    front: document.getElementById('flashcardFront').value.trim(),
+                    back: document.getElementById('flashcardBack').value.trim(),
+                    frontImage: document.getElementById('frontImagePreview').src || null,
+                    backImage: document.getElementById('backImagePreview').src || null,
+                    additionalInfo: document.getElementById('flashcardAdditionalInfo').value.trim() || null
+                };
+
+                // Validation des champs
+                if (!newFlashcard.front || !newFlashcard.back) {
+                    alert('Le recto et le verso sont obligatoires');
+                    return;
+                }
+
+                // Sauvegarder la flashcard et mettre à jour l'affichage
+                flashcardCount = FlashcardManager.saveFlashcard(currentDeckId, newFlashcard);
+                renderFlashcards();
+                closeCreateFlashcardModal();
+            });
+
+            // Gestion du formulaire d'édition de flashcard
+            const editForm = document.getElementById('editFlashcardForm');
+            editForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const updatedFlashcard = {
+                    id: parseInt(document.getElementById('editFlashcardId').value),
+                    front: document.getElementById('editFlashcardFront').value.trim(),
+                    back: document.getElementById('editFlashcardBack').value.trim(),
+                    frontImage: document.getElementById('editFrontImagePreview').src || null,
+                    backImage: document.getElementById('editBackImagePreview').src || null,
+                    additionalInfo: document.getElementById('editFlashcardAdditionalInfo').value.trim() || null
+                };
+
+                // Validation des champs
+                if (!updatedFlashcard.front || !updatedFlashcard.back) {
+                    alert('Le recto et le verso sont obligatoires');
+                    return;
+                }
+
+                // Sauvegarder la flashcard modifiée
+                FlashcardManager.saveFlashcard(currentDeckId, updatedFlashcard);
+                renderFlashcards();
+                closeEditFlashcardModal();
+            });
+        });
+    </script>
+</body>
+</html>
