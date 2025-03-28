@@ -852,6 +852,97 @@ class StorageManager {
                 closeEditFlashcardModal();
             });
         });
+
+
+// Vérifier si on est en mode lecture seule
+        function isReadOnlyMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+
+            // Vérifier l'URL actuelle et l'URL précédente
+            const isCurrentReadOnly = mode === 'readonly';
+
+            // Vérifier si l'URL précédente contenait mode=readonly
+            const referrer = document.referrer;
+            const isReferrerReadOnly = referrer && referrer.includes('mode=readonly');
+
+            return isCurrentReadOnly || isReferrerReadOnly;
+        }
+
+        // Configurer l'interface selon le mode
+        function setupInterface() {
+            const actionButtons = document.getElementById('actionButtons');
+            const readOnly = isReadOnlyMode();
+
+            if (readOnly) {
+                actionButtons.innerHTML = `
+                    <button class="primary-btn" onclick="startRevision()">
+                        <i class="fas fa-book"></i> Mode Révision
+                    </button>
+                `;
+
+                // Masquer le bouton de création
+                const createButton = document.querySelector('.primary-btn');
+                if (createButton) {
+                    createButton.style.display = 'none';
+                }
+            } else {
+                actionButtons.innerHTML = `
+                    <button class="primary-btn" onclick="openCreateThemeModal()">
+                        <i class="fas fa-plus"></i> Créer un thème
+                    </button>
+                `;
+            }
+        }
+
+// Gestion des thèmes
+        function renderThemes() {
+            const container = document.getElementById('themes-container');
+            const urlParams = new URLSearchParams(window.location.search);
+            const deckId = parseInt(urlParams.get('deckId'));
+            const isViewMode = isReadOnlyMode(); // Utiliser la fonction isReadOnlyMode pour une détection plus précise
+            const themes = ThemeManager.getThemes().filter(theme => theme.deckId === deckId);
+
+            if (themes.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--primary-color);">Aucun thème créé. Commencez par en créer un !</p>';
+                return;
+            }
+
+            container.innerHTML = themes.map(theme => `
+                <div class="theme-card" onclick="openTheme(${theme.id})">
+                    ${theme.image ? `<img src="${theme.image}" alt="${theme.name}" class="theme-card-image">` : ''}
+                    <div class="theme-card-content">
+                        <h3>${theme.name}</h3>
+                        ${theme.description ? `<p>${theme.description}</p>` : ''}
+                    </div>
+                    ${!isViewMode ? `
+                        <div class="theme-card-actions">
+                            <button class="action-btn" onclick="event.stopPropagation(); openEditThemeModal(${theme.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn" onclick="event.stopPropagation(); deleteTheme(${theme.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            // Cacher le bouton de création en mode lecture seule
+            const createButton = document.querySelector('.create-theme-btn, .primary-btn'); 
+            if (createButton && isViewMode) {
+                createButton.style.display = 'none';
+            }
+        }
+
+        function openTheme(themeId) {
+            // Préserver le mode lecture seule lors de la navigation
+            const isViewMode = isReadOnlyMode();
+            const url = isViewMode 
+                ? `themes.html?themeId=${themeId}&mode=readonly` 
+                : `themes.html?themeId=${themeId}`;
+            window.location.href = url;
+        }
     </script>
 </body>
 </html>
