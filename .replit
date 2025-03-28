@@ -9,6 +9,8 @@ channel = "stable-23_11"
 [deployment]
 publicDir = "/"
 deploymentTarget = "static"
+run = ["sh", "-c", "npx serve -s ."]
+build = ["sh", "-c", "npm install"]
 
 [workflows]
 runButton = "Serveur Web"
@@ -20,8 +22,8 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm install -g serve"
+args = "npm install"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "serve -s ."
+args = "npx serve -s ."

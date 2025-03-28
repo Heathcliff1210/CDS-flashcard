@@ -3,8 +3,8 @@ services:
   - type: web
     name: cds-flashcard-base
     env: static
-    buildCommand: echo "No build needed"
-    staticPublishPath: .
+    buildCommand: npm install
+    staticPublishPath: ./
     routes:
       - type: rewrite
         source: /*
