@@ -314,6 +314,7 @@
             const container = document.getElementById('themes-container');
             const urlParams = new URLSearchParams(window.location.search);
             const deckId = parseInt(urlParams.get('deckId'));
+            const isViewMode = urlParams.get('mode') === 'readonly'; // Added View Mode Check
             const themes = ThemeManager.getThemes().filter(theme => theme.deckId === deckId);
 
             if (themes.length === 0) {
@@ -328,7 +329,7 @@
                         <h3>${theme.name}</h3>
                         ${theme.description ? `<p>${theme.description}</p>` : ''}
                     </div>
-                    ${!isReadOnlyMode() ? `
+                    ${!isViewMode ? `
                         <div class="theme-card-actions">
                             <button class="action-btn" onclick="event.stopPropagation(); openEditThemeModal(${theme.id})">
                                 <i class="fas fa-edit"></i>
@@ -340,6 +341,11 @@
                     ` : ''}
                 </div>
             `).join('');
+            const createButton = document.querySelector('.primary-btn'); // Added to hide create button in view mode
+
+            if (isViewMode) {
+                createButton.style.display = 'none';
+            }
         }
 
         function openTheme(themeId) {
