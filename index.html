@@ -185,7 +185,7 @@
                     <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
-            
+
             <div id="sessionContainer" style="margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
                 <div id="sessionKeyInputContainer" style="display: none; gap: 10px; margin: 10px 0;">
                     <input type="text" id="sessionKeyInput" placeholder="Entrez votre clé de session" 
@@ -196,8 +196,8 @@
                     </button>
                 </div>
                 <div id="sessionActions" style="text-align: center; color: rgba(255,255,255,0.9); font-size: 0.9rem;">
-                    <p><a href="#" onclick="showSessionKeyInput()" style="color: white; text-decoration: underline;">Avez-vous une clé de session?</a> ou 
-                    <a href="#" onclick="generateNewSessionKey()" style="color: white; text-decoration: underline;">générer une nouvelle clé</a></p>
+                    <p><a href="#"  style="color: white; text-decoration: underline;">Avez-vous une clé de session?</a> ou 
+                    <a href="#" style="color: white; text-decoration: underline;">générer une nouvelle clé</a></p>
                 </div>
                 <div id="sessionKeyDisplay" style="display: none; background-color: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px; margin-top: 10px; text-align: center;">
                     <p>Votre clé de session: <span id="generatedKey" style="font-weight: bold;"></span></p>
@@ -239,17 +239,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Vérifier si une clé de session existe déjà
             const existingKey = localStorage.getItem('currentSessionKey');
-            
+
             if (existingKey) {
                 // Si une clé existe, l'afficher
                 showExistingSessionKey(existingKey);
             }
+
+            // S'assurer que les gestionnaires d'événements sont correctement attachés
+            document.getElementById('sessionActions').addEventListener('click', function(e) {
+                if (e.target.getAttribute('href') === '#' && e.target.textContent.includes('clé de session')) {
+                    e.preventDefault();
+                    showSessionKeyInput();
+                } else if (e.target.getAttribute('href') === '#' && e.target.textContent.includes('nouvelle clé')) {
+                    e.preventDefault();
+                    generateNewSessionKey();
+                }
+            });
         });
 
         function showExistingSessionKey(key) {
             const sessionKeyDisplay = document.getElementById('sessionKeyDisplay');
             const generatedKeySpan = document.getElementById('generatedKey');
-            
+
             generatedKeySpan.textContent = key;
             sessionKeyDisplay.style.display = 'block';
         }
@@ -264,18 +275,18 @@
             const newKey = SessionManager.createNewSession();
             const sessionKeyDisplay = document.getElementById('sessionKeyDisplay');
             const generatedKeySpan = document.getElementById('generatedKey');
-            
+
             // Afficher la clé générée
             generatedKeySpan.textContent = newKey;
             sessionKeyDisplay.style.display = 'block';
-            
+
             return false; // Empêcher le comportement par défaut du lien
         }
 
         function copySessionKey() {
             const keySpan = document.getElementById('generatedKey');
             const key = keySpan.textContent;
-            
+
             navigator.clipboard.writeText(key).then(() => {
                 alert('Clé de session copiée!');
             }, () => {
@@ -286,39 +297,39 @@
         function loadSessionByKey() {
             const keyInput = document.getElementById('sessionKeyInput');
             const key = keyInput.value.trim();
-            
+
             if (!key) {
                 alert('Veuillez entrer une clé de session');
                 return;
             }
-            
+
             // Vérifier si cette clé existe dans localStorage
             const sessionData = localStorage.getItem(`session_${key}`);
-            
+
             if (!sessionData) {
                 alert('Aucune session trouvée avec cette clé');
                 return;
             }
-            
+
             // Définir cette clé comme clé de session actuelle
             localStorage.setItem('currentSessionKey', key);
-            
+
             // Rediriger vers la page d'accueil
             window.location.href = 'acceuil.html';
         }
-        
+
         function startAdventure() {
             // Si aucune clé de session n'existe, en créer une
             if (!localStorage.getItem('currentSessionKey')) {
                 const newKey = SessionManager.createNewSession();
-                
+
                 // Afficher brièvement la clé avant de rediriger
                 const sessionKeyDisplay = document.getElementById('sessionKeyDisplay');
                 const generatedKeySpan = document.getElementById('generatedKey');
-                
+
                 generatedKeySpan.textContent = newKey;
                 sessionKeyDisplay.style.display = 'block';
-                
+
                 // Attendre 1.5 secondes pour que l'utilisateur puisse voir la clé
                 setTimeout(() => {
                     window.location.href = 'acceuil.html';
@@ -327,7 +338,7 @@
                 // Si une clé existe déjà, rediriger directement
                 window.location.href = 'acceuil.html';
             }
-            
+
             return false; // Empêcher le comportement par défaut
         }
     </script>

@@ -124,5 +124,5 @@ if (typeof window !== 'undefined') {
     window.SessionManager = SessionManager;
 }
 
-// Pour l'utilisation comme module ES
-export default SessionManager;
+// Pas d'export pour éviter les erreurs dans les navigateurs
+// Nous utilisons déjà window.SessionManager au-dessus

@@ -31,3 +31,15 @@ args = "npx serve -s ."
 [[ports]]
 localPort = 3000
 externalPort = 80
+
+[[ports]]
+localPort = 8000
+externalPort = 8000
+
+[[ports]]
+localPort = 35305
+externalPort = 3001
+
+[[ports]]
+localPort = 45419
+externalPort = 3000
