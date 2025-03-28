@@ -585,6 +585,17 @@ class StorageManager {
         let currentDeckId = null;
         let flashcardCount = 0;
 
+        // Fonction pour récupérer l'ID du deck depuis l'URL
+        function getCurrentDeckIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const themeId = parseInt(urlParams.get('themeId'));
+            if (themeId) {
+                const theme = ThemeManager.getThemeById(themeId);
+                return theme ? theme.deckId : null;
+            }
+            return parseInt(urlParams.get('deckId'));
+        }
+
         // Gestion des prévisualisations d'images
         function setupImageUpload(fileInputId, previewImageId, maxSizeInMB = 5) {
             const fileInput = document.getElementById(fileInputId);
@@ -744,18 +755,51 @@ class StorageManager {
         }
 
         // Gestion des modaux avec accessibilité
-        function openCreateFlashcardModal() {
+        window.openCreateFlashcardModal = function() {
+            // Vérification préalable que currentDeckId est défini
+            if (!currentDeckId) {
+                currentDeckId = getCurrentDeckIdFromUrl();
+                if (!currentDeckId) {
+                    alert("Erreur: Impossible de déterminer dans quel deck enregistrer la flashcard");
+                    return;
+                }
+            }
+            
             const modal = document.getElementById('createFlashcardModal');
+            if (!modal) {
+                console.error("Modal de création de flashcard non trouvé");
+                return;
+            }
+            
+            // Réinitialiser le formulaire avant d'ouvrir
+            document.getElementById('createFlashcardForm').reset();
+            document.getElementById('frontImagePreview').style.display = 'none';
+            document.getElementById('backImagePreview').style.display = 'none';
+            
             modal.style.display = 'flex';
-            modal.querySelector('textarea').focus();
+            
+            // Focus sur le premier champ après un court délai pour s'assurer que le modal est visible
+            setTimeout(() => {
+                const firstTextarea = modal.querySelector('textarea');
+                if (firstTextarea) firstTextarea.focus();
+            }, 100);
         }
 
         function closeCreateFlashcardModal() {
             const modal = document.getElementById('createFlashcardModal');
+            if (!modal) return;
+            
             modal.style.display = 'none';
-            document.getElementById('createFlashcardForm').reset();
-            document.getElementById('frontImagePreview').style.display = 'none';
-            document.getElementById('backImagePreview').style.display = 'none';
+            
+            // Réinitialiser complètement le formulaire
+            const form = document.getElementById('createFlashcardForm');
+            if (form) form.reset();
+            
+            const frontPreview = document.getElementById('frontImagePreview');
+            if (frontPreview) frontPreview.style.display = 'none';
+            
+            const backPreview = document.getElementById('backImagePreview');
+            if (backPreview) backPreview.style.display = 'none';
         }
 
         function openEditFlashcardModal(id) {
@@ -803,8 +847,12 @@ class StorageManager {
             setupImageUpload('editBackImageUpload', 'editBackImagePreview');
 
             // Récupérer l'ID du deck depuis l'URL
-            currentDeckId = StorageManager.getCurrentDeckId();
-            if (!currentDeckId) return;
+            currentDeckId = getCurrentDeckIdFromUrl();
+            console.log("Debug: currentDeckId =", currentDeckId);
+            if (!currentDeckId) {
+                console.error("Erreur: Impossible de récupérer l'ID du deck");
+                return;
+            }
 
             // Récupérer et afficher le titre du deck
             const decks = StorageManager.getItem('decks', []);
@@ -828,32 +876,74 @@ class StorageManager {
 
             // Gestion du formulaire de création de flashcard
             const createForm = document.getElementById('createFlashcardForm');
-            createForm.addEventListener('submit', (e) => {
+            console.log("Debug: Formulaire de création trouvé", createForm ? "oui" : "non");
+            
+            createForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const frontText = document.getElementById('flashcardFront').value.trim();
-                const backText = document.getElementById('flashcardBack').value.trim();
-                const additionalInfo = document.getElementById('flashcardAdditionalInfo').value.trim() || null;
+                console.log("Debug: Submit du formulaire détecté");
+                
+                // Vérification que currentDeckId est défini
+                if (!currentDeckId) {
+                    currentDeckId = getCurrentDeckIdFromUrl();
+                    console.log("Debug: Récupération forcée de currentDeckId =", currentDeckId);
+                    if (!currentDeckId) {
+                        alert("Erreur: Impossible de déterminer dans quel deck enregistrer la flashcard");
+                        return;
+                    }
+                }
+                
+                // Récupération des valeurs avec vérification complète
+                const frontInput = document.getElementById('flashcardFront');
+                const backInput = document.getElementById('flashcardBack');
+                const additionalInfoInput = document.getElementById('flashcardAdditionalInfo');
+                
+                if (!frontInput || !backInput) {
+                    console.error("Erreur: Champs de formulaire non trouvés");
+                    alert("Erreur de formulaire: champs non trouvés");
+                    return;
+                }
+                
+                const frontText = frontInput.value;
+                const backText = backInput.value;
+                console.log("Debug: Valeurs récupérées - front:", frontText, "back:", backText);
+                
+                if (!frontText || frontText.trim() === "") {
+                    alert('Le recto est obligatoire');
+                    frontInput.focus();
+                    return;
+                }
+                
+                if (!backText || backText.trim() === "") {
+                    alert('Le verso est obligatoire');
+                    backInput.focus();
+                    return;
+                }
+                
+                const additionalInfo = additionalInfoInput ? additionalInfoInput.value.trim() : null;
                 const frontImagePreview = document.getElementById('frontImagePreview');
                 const backImagePreview = document.getElementById('backImagePreview');
 
-                if (!frontText || !backText) {
-                    alert('Le recto et le verso sont obligatoires');
-                    return;
-                }
-
                 const newFlashcard = {
                     id: Date.now(),
-                    front: frontText,
-                    back: backText,
-                    frontImage: frontImagePreview.style.display !== 'none' ? frontImagePreview.src : null,
-                    backImage: backImagePreview.style.display !== 'none' ? backImagePreview.src : null,
-                    additionalInfo: additionalInfo
+                    front: frontText.trim(),
+                    back: backText.trim(),
+                    frontImage: frontImagePreview && frontImagePreview.style.display !== 'none' ? frontImagePreview.src : null,
+                    backImage: backImagePreview && backImagePreview.style.display !== 'none' ? backImagePreview.src : null,
+                    additionalInfo: additionalInfo || null
                 };
-
-                FlashcardManager.saveFlashcard(currentDeckId, newFlashcard);
-                flashcardCount++;
-                renderFlashcards();
-                closeCreateFlashcardModal();
+                
+                console.log("Debug: Nouvelle flashcard", newFlashcard);
+                
+                try {
+                    FlashcardManager.saveFlashcard(currentDeckId, newFlashcard);
+                    flashcardCount++;
+                    renderFlashcards();
+                    closeCreateFlashcardModal();
+                    alert("Flashcard créée avec succès!");
+                } catch (error) {
+                    console.error("Erreur lors de l'enregistrement de la flashcard:", error);
+                    alert("Erreur lors de la création de la flashcard. Veuillez réessayer.");
+                }
             });
 
             // Gestion du formulaire d'édition de flashcard
@@ -979,8 +1069,7 @@ class StorageManager {
             const createButton = document.getElementById('createFlashcardBtn');
             if (createButton) {
                 createButton.onclick = function() {
-                    const modal = document.getElementById('createFlashcardModal');
-                    if (modal) modal.style.display = 'flex';
+                    openCreateFlashcardModal();
                 };
             }
         });
