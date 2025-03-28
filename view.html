@@ -262,14 +262,8 @@
         }
 
         function renderFlashcards() {
-            const container = document.getElementById('flashcards-container');
             const deckId = StorageManager.getCurrentDeckId();
-            const flashcards = StorageManager.getFlashcards(deckId);
-
-            if (flashcards.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--primary-color);">Aucune flashcard dans ce deck.</p>';
-                return;
-            }
+            window.location.href = `flashcards.html?deckId=${deckId}&mode=readonly`;
 
             container.innerHTML = flashcards.map(card => `
                 <div class="flashcard" onclick="toggleFlashcard(this)">
