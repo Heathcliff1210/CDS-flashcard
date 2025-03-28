@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎭 CDS FLASHCARD-BASE - Visualisation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5D3FD3;
+            --secondary-color: #FF6B6B;
+            --background-color: #F4F4F9;
+            --text-color: #333;
+            --card-background: white;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .dashboard-nav {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .deck-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .flashcard {
+            background: var(--card-background);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            padding: 20px;
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .review-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .review-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .additional-info {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <nav class="dashboard-nav">
+        <a href="index.html" class="nav-logo">
+            <span class="logo-emoji">🎭</span>
+            CDS FLASHCARD-BASE
+        </a>
+    </nav>
+
+    <div class="container">
+        <div class="deck-header">
+            <h1 id="deckTitle"></h1>
+            <button class="review-btn" onclick="startRevision()">
+                <i class="fas fa-book"></i> Mode Révision
+            </button>
+        </div>
+        <div id="flashcards-container"></div>
+    </div>
+
+    <script>
+        class StorageManager {
+            static getItem(key, defaultValue = null) {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : defaultValue;
+            }
+        }
+
+        function getCurrentDeckId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return parseInt(urlParams.get('deckId'));
+        }
+
+        function startRevision() {
+            const deckId = getCurrentDeckId();
+            window.location.href = `revision.html?deckId=${deckId}`;
+        }
+
+        function toggleFlashcard(element) {
+            element.classList.toggle('flipped');
+        }
+
+        function renderFlashcards() {
+            const container = document.getElementById('flashcards-container');
+            const deckId = getCurrentDeckId();
+            const flashcards = StorageManager.getItem('flashcards', [])
+                .filter(f => f.deckId === deckId);
+
+            if (flashcards.length === 0) {
+                container.innerHTML = '<p style="text-align:center;">Aucune flashcard disponible dans ce deck.</p>';
+                return;
+            }
+
+            container.innerHTML = flashcards.map(card => `
+                <div class="flashcard" onclick="toggleFlashcard(this)">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <h3>${card.front}</h3>
+                            ${card.frontImage ? `<img src="${card.frontImage}" alt="Image recto">` : ''}
+                        </div>
+                        <div class="flashcard-back">
+                            <h3>${card.back}</h3>
+                            ${card.backImage ? `<img src="${card.backImage}" alt="Image verso">` : ''}
+                            ${card.additionalInfo ? `
+                                <div class="additional-info">
+                                    <p>${card.additionalInfo}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Afficher le titre du deck
+            const decks = StorageManager.getItem('decks', []);
+            const deck = decks.find(d => d.id === deckId);
+            if (deck) {
+                document.getElementById('deckTitle').textContent = deck.name;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderFlashcards);
+    </script>
+</body>
+</html>
