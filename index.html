@@ -185,6 +185,24 @@
                     <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
+            
+            <div style="margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <div style="display: flex; gap: 10px; margin: 10px 0;">
+                    <input type="text" id="sessionKeyInput" placeholder="Entrez votre clé de session" 
+                           style="padding: 10px; border-radius: 20px; border: none; width: 250px; max-width: 100%;">
+                    <button onclick="loadSessionByKey()" 
+                            style="background-color: white; color: var(--primary-color); border: none; border-radius: 20px; padding: 10px 15px; cursor: pointer;">
+                        <i class="fas fa-key"></i> Charger
+                    </button>
+                </div>
+                <div style="text-align: center; color: rgba(255,255,255,0.9); font-size: 0.9rem;">
+                    <p>Ou <a href="#" onclick="generateNewSessionKey()" style="color: white; text-decoration: underline;">générer une nouvelle clé</a></p>
+                </div>
+                <div id="sessionKeyDisplay" style="display: none; background-color: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px; margin-top: 10px; text-align: center;">
+                    <p>Votre clé de session: <span id="generatedKey" style="font-weight: bold;"></span></p>
+                    <p style="font-size: 0.8rem; margin-top: 5px;">Conservez cette clé pour accéder à vos données ultérieurement</p>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -211,5 +229,78 @@
     <footer class="vibrant-footer">
         <p>🚀 Développé avec passion par la Team CDS © 2024</p>
     </footer>
+
+    <script>
+        // Gestion des clés de session
+        function generateSessionKey() {
+            // Génère une clé aléatoire de 16 caractères
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let key = '';
+            for (let i = 0; i < 16; i++) {
+                key += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return key;
+        }
+
+        function generateNewSessionKey() {
+            const newKey = generateSessionKey();
+            const sessionKeyDisplay = document.getElementById('sessionKeyDisplay');
+            const generatedKeySpan = document.getElementById('generatedKey');
+            
+            // Afficher la clé générée
+            generatedKeySpan.textContent = newKey;
+            sessionKeyDisplay.style.display = 'block';
+            
+            // Sauvegarder la clé dans localStorage
+            localStorage.setItem('currentSessionKey', newKey);
+            
+            // Initialiser les données pour cette clé
+            const sessionData = {
+                decks: [],
+                themes: [],
+                lastAccess: new Date().toISOString()
+            };
+            
+            // Stocker les données dans localStorage avec la clé comme préfixe
+            storeSessionData(newKey, sessionData);
+            
+            return false; // Empêcher le comportement par défaut du lien
+        }
+
+        function storeSessionData(key, data) {
+            localStorage.setItem(`session_${key}`, JSON.stringify(data));
+        }
+
+        function loadSessionByKey() {
+            const keyInput = document.getElementById('sessionKeyInput');
+            const key = keyInput.value.trim();
+            
+            if (!key) {
+                alert('Veuillez entrer une clé de session');
+                return;
+            }
+            
+            // Vérifier si cette clé existe dans localStorage
+            const sessionData = localStorage.getItem(`session_${key}`);
+            
+            if (!sessionData) {
+                alert('Aucune session trouvée avec cette clé');
+                return;
+            }
+            
+            // Définir cette clé comme clé de session actuelle
+            localStorage.setItem('currentSessionKey', key);
+            
+            // Rediriger vers la page d'accueil
+            window.location.href = 'acceuil.html';
+        }
+
+        // Vérifier si une clé existe déjà
+        const existingKey = localStorage.getItem('currentSessionKey');
+        if (existingKey) {
+            const sessionKeyInput = document.getElementById('sessionKeyInput');
+            sessionKeyInput.value = existingKey;
+        }
+    </script>
 </body>
 </html>

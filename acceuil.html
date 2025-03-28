@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -188,6 +187,12 @@
                 <span class="logo-emoji">🎭</span>
                 CDS FLASHCARD-BASE
             </div>
+            <div id="sessionKeyInfo" style="font-size: 0.8rem; color: white; margin-left: 20px;">
+                Session: <span id="currentSessionKey"></span>
+                <button id="copySessionKeyBtn" style="background: none; border: none; color: white; cursor: pointer;">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
             <a href="index.html" class="action-btn">
                 <i class="fas fa-home"></i>
                 Accueil
@@ -223,12 +228,14 @@
     <script>
         const decksContainer = document.getElementById('decksContainer');
         const searchInput = document.querySelector('.search-input');
-        
+        const currentSessionKeySpan = document.getElementById('currentSessionKey');
+        const copySessionKeyBtn = document.getElementById('copySessionKeyBtn');
+
         function getPublicDecks() {
             const allDecks = JSON.parse(localStorage.getItem('decks') || '[]');
             return allDecks.filter(deck => deck.isPublic);
         }
-        
+
         function displayDecks(decks) {
             if (decks.length === 0) {
                 decksContainer.innerHTML = `
@@ -282,6 +289,19 @@
         function viewPublicDeck(deckId) {
             window.location.href = `flashcards.html?deckId=${deckId}&mode=readonly`;
         }
+
+        // Placeholder for session key -  REPLACE WITH ACTUAL SESSION KEY MANAGEMENT
+        currentSessionKeySpan.textContent = "No Session Key";
+
+
+        copySessionKeyBtn.addEventListener('click', () => {
+            // Placeholder for copy functionality - REPLACE WITH ACTUAL COPY MECHANISM
+            navigator.clipboard.writeText("No Session Key").then(() => {
+                alert("Session Key (placeholder) copied to clipboard!");
+            }, () => {
+                alert("Failed to copy. Please try again.");
+            });
+        });
     </script>
 </body>
 </html>

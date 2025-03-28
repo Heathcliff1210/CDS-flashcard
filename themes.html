@@ -471,9 +471,19 @@
             }
         }
 
+// Importer le gestionnaire de session
+        document.write('<script src="session-manager.js"><\/script>');
+
 class StorageManager {
             static getItem(key, defaultValue = null) {
                 try {
+                    // Si c'est themes ou decks, utiliser SessionManager
+                    if (key === 'themes') {
+                        return SessionManager.getThemes();
+                    } else if (key === 'decks') {
+                        return SessionManager.getDecks();
+                    }
+                    
                     const item = localStorage.getItem(key);
                     return item ? JSON.parse(item) : defaultValue;
                 } catch (error) {
@@ -488,7 +498,7 @@ class StorageManager {
             }
 
             static getFlashcards(deckId) {
-                return this.getItem(`flashcards_${deckId}`, []);
+                return SessionManager.getFlashcards(deckId);
             }
 
             static saveFlashcard(deckId, flashcard) {
@@ -506,7 +516,17 @@ class StorageManager {
 
             static setItem(key, value) {
                 try {
-                    localStorage.setItem(key, JSON.stringify(value));
+                    // Si c'est themes ou decks, utiliser SessionManager
+                    if (key === 'themes') {
+                        SessionManager.saveThemes(value);
+                    } else if (key === 'decks') {
+                        SessionManager.saveDecks(value);
+                    } else if (key.startsWith('flashcards_')) {
+                        const deckId = key.split('_')[1];
+                        SessionManager.saveFlashcards(deckId, value);
+                    } else {
+                        localStorage.setItem(key, JSON.stringify(value));
+                    }
                 } catch (error) {
                     console.error('Erreur d\'écriture dans le stockage:', error);
                 }

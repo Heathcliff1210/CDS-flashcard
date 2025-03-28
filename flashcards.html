@@ -252,10 +252,20 @@
     </div>
 
     <script>
-        // Gestionnaire de stockage
+        // Importer le gestionnaire de session
+        document.write('<script src="session-manager.js"><\/script>');
+
+        // Gestionnaire de stockage avec support des sessions
         class StorageManager {
             static getItem(key, defaultValue = null) {
                 try {
+                    // Si c'est themes ou decks, utiliser SessionManager
+                    if (key === 'themes') {
+                        return SessionManager.getThemes();
+                    } else if (key === 'decks') {
+                        return SessionManager.getDecks();
+                    }
+                    
                     const item = localStorage.getItem(key);
                     return item ? JSON.parse(item) : defaultValue;
                 } catch (error) {
@@ -265,13 +275,20 @@
             }
 
             static getDeckThemes(deckId) {
-                const themes = this.getItem('themes', []);
+                const themes = SessionManager.getThemes();
                 return themes.filter(theme => theme.deckId === deckId);
             }
 
             static setItem(key, value) {
                 try {
-                    localStorage.setItem(key, JSON.stringify(value));
+                    // Si c'est themes ou decks, utiliser SessionManager
+                    if (key === 'themes') {
+                        SessionManager.saveThemes(value);
+                    } else if (key === 'decks') {
+                        SessionManager.saveDecks(value);
+                    } else {
+                        localStorage.setItem(key, JSON.stringify(value));
+                    }
                 } catch (error) {
                     console.error('Erreur d\'écriture dans le stockage:', error);
                 }
