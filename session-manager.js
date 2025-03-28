@@ -1,76 +1,128 @@
 
-// Gestionnaire de session pour stocker et récupérer des données par clé de session
+/**
+ * Gestionnaire de session pour CDS Flashcard-Base
+ * Permet de gérer les données utilisateur avec des clés de session uniques
+ */
 class SessionManager {
-    static getCurrentSessionKey() {
-        return localStorage.getItem('currentSessionKey') || this.createNewSession();
-    }
-
-    static createNewSession() {
-        // Génère une clé aléatoire de 16 caractères
+    /**
+     * Génère une nouvelle clé de session aléatoire
+     */
+    static generateSessionKey(length = 16) {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let key = '';
-        for (let i = 0; i < 16; i++) {
+        for (let i = 0; i < length; i++) {
             key += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        
-        // Initialiser les données pour cette clé
-        const sessionData = {
-            decks: [],
-            themes: [],
-            lastAccess: new Date().toISOString()
-        };
-        
-        // Stocker les données dans localStorage
-        localStorage.setItem('currentSessionKey', key);
-        this.storeSessionData(key, sessionData);
-        
         return key;
     }
 
-    static getSessionData(key = null) {
-        const sessionKey = key || this.getCurrentSessionKey();
-        const data = localStorage.getItem(`session_${sessionKey}`);
+    /**
+     * Crée une nouvelle session avec une clé unique
+     */
+    static createNewSession() {
+        const sessionKey = this.generateSessionKey();
+        localStorage.setItem('currentSessionKey', sessionKey);
+        
+        // Initialiser les données de base pour cette session
+        localStorage.setItem(`session_${sessionKey}`, JSON.stringify({
+            decks: [],
+            themes: [],
+            flashcards: {}
+        }));
+        
+        return sessionKey;
+    }
+
+    /**
+     * Récupère la clé de session actuelle
+     */
+    static getCurrentSessionKey() {
+        return localStorage.getItem('currentSessionKey');
+    }
+
+    /**
+     * Récupère les données de la session actuelle
+     */
+    static getCurrentSessionData() {
+        const key = this.getCurrentSessionKey();
+        if (!key) return null;
+        
+        const data = localStorage.getItem(`session_${key}`);
         return data ? JSON.parse(data) : null;
     }
 
-    static storeSessionData(key, data) {
-        const sessionKey = key || this.getCurrentSessionKey();
-        localStorage.setItem(`session_${sessionKey}`, JSON.stringify(data));
+    /**
+     * Sauvegarde les données de la session actuelle
+     */
+    static saveCurrentSessionData(data) {
+        const key = this.getCurrentSessionKey();
+        if (!key) return false;
+        
+        localStorage.setItem(`session_${key}`, JSON.stringify(data));
+        return true;
     }
 
+    /**
+     * Méthodes spécifiques pour récupérer différents types de données
+     */
     static getDecks() {
-        const sessionData = this.getSessionData();
-        return sessionData?.decks || [];
+        const sessionData = this.getCurrentSessionData();
+        return sessionData ? sessionData.decks : [];
     }
 
     static getThemes() {
-        const sessionData = this.getSessionData();
-        return sessionData?.themes || [];
-    }
-
-    static saveDecks(decks) {
-        const sessionKey = this.getCurrentSessionKey();
-        const sessionData = this.getSessionData(sessionKey) || {};
-        sessionData.decks = decks;
-        sessionData.lastAccess = new Date().toISOString();
-        this.storeSessionData(sessionKey, sessionData);
-    }
-
-    static saveThemes(themes) {
-        const sessionKey = this.getCurrentSessionKey();
-        const sessionData = this.getSessionData(sessionKey) || {};
-        sessionData.themes = themes;
-        sessionData.lastAccess = new Date().toISOString();
-        this.storeSessionData(sessionKey, sessionData);
+        const sessionData = this.getCurrentSessionData();
+        return sessionData ? sessionData.themes : [];
     }
 
     static getFlashcards(deckId) {
-        const sessionKey = this.getCurrentSessionKey();
-        return JSON.parse(localStorage.getItem(`session_${sessionKey}_flashcards_${deckId}`) || '[]');
+        const sessionData = this.getCurrentSessionData();
+        if (!sessionData || !sessionData.flashcards) return [];
+        
+        return sessionData.flashcards[deckId] || [];
+    }
+
+    /**
+     * Méthodes spécifiques pour sauvegarder différents types de données
+     */
+    static saveDecks(decks) {
+        const sessionData = this.getCurrentSessionData() || {};
+        sessionData.decks = decks;
+        this.saveCurrentSessionData(sessionData);
+    }
+
+    static saveThemes(themes) {
+        const sessionData = this.getCurrentSessionData() || {};
+        sessionData.themes = themes;
+        this.saveCurrentSessionData(sessionData);
     }
 
     static saveFlashcards(deckId, flashcards) {
-        const sessionKey = this.getCurrentSessionKey();
-        localStorage.setItem(`session_${sessionKey}_flashcards_${deckId}`, JSON.stringify(flashcards));
+        const sessionData = this.getCurrentSessionData() || {};
+        if (!sessionData.flashcards) {
+            sessionData.flashcards = {};
+        }
+        sessionData.flashcards[deckId] = flashcards;
+        this.saveCurrentSessionData(sessionData);
+    }
+
+    /**
+     * Change la clé de session actuelle
+     */
+    static switchSession(sessionKey) {
+        // Vérifier que la session existe
+        const sessionData = localStorage.getItem(`session_${sessionKey}`);
+        if (!sessionData) return false;
+        
+        localStorage.setItem('currentSessionKey', sessionKey);
+        return true;
     }
 }
+
+// Si utilisé en dehors d'un module ES
+if (typeof window !== 'undefined') {
+    window.SessionManager = SessionManager;
+}
+
+// Pour l'utilisation comme module ES
+export default SessionManager;
