@@ -633,19 +633,22 @@ class StorageManager {
         function renderFlashcards() {
             const container = document.getElementById('flashcards-container');
             const saveAndReturnBtn = document.getElementById('saveAndReturnBtn');
-            const createFlashcardBtn = document.querySelector('.primary-btn');
             const urlParams = new URLSearchParams(window.location.search);
-            const isViewMode = urlParams.get('mode') === 'readonly';
+            const mode = urlParams.get('mode');
+            const source = urlParams.get('source');
+            const isViewMode = mode === 'readonly' || source === 'view';
             const flashcards = FlashcardManager.getFlashcards(currentDeckId);
 
-            // Masquer les boutons en mode view
+            // Masquer les boutons d'action en mode view
             if (isViewMode) {
-                createFlashcardBtn.style.display = 'none';
+                document.querySelector('.primary-btn').style.display = 'none';
                 saveAndReturnBtn.style.display = 'none';
+                const actionButtons = document.querySelectorAll('.flashcard-action-btn');
+                actionButtons.forEach(btn => btn.style.display = 'none');
             }
 
             flashcardCount = flashcards.length;
-            saveAndReturnBtn.style.display = flashcardCount > 0 ? 'flex' : 'none';
+            saveAndReturnBtn.style.display = (!isViewMode && flashcardCount > 0) ? 'flex' : 'none';
 
             if (flashcards.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:var(--primary-color);">Aucune flashcard créée. Commencez par en créer une !</p>';
@@ -695,7 +698,7 @@ class StorageManager {
         function toggleAdditionalInfo(event, toggleElement) {
             event.stopPropagation(); // Empêcher la propagation du clic
             const additionalInfo = toggleElement.nextElementSibling;
-            
+
             // Basculer la visibilité des informations supplémentaires
             const isHidden = additionalInfo.style.display === 'none' || additionalInfo.style.display === '';
             additionalInfo.style.display = isHidden ? 'block' : 'none';
