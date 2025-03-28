@@ -1,4 +1,58 @@
 
+// Fonctions de débogage pour l'application CDS FLASHCARD-BASE
+console.log("Console de débogage initialisée");
+
+// Fonction pour inspecter et valider un formulaire
+function debugForm(formId) {
+    const form = document.getElementById(formId);
+    if (!form) {
+        console.error(`Formulaire ${formId} non trouvé!`);
+        return null;
+    }
+    
+    console.log(`Inspection du formulaire ${formId}:`);
+    
+    // Récupérer tous les champs du formulaire
+    const inputs = form.querySelectorAll('input, textarea, select');
+    const formData = {};
+    
+    inputs.forEach(input => {
+        formData[input.id || input.name] = {
+            type: input.type,
+            value: input.value,
+            required: input.required,
+            validity: input.validity.valid
+        };
+    });
+    
+    console.log("Données du formulaire:", formData);
+    return formData;
+}
+
+// Fonction pour aider à résoudre les problèmes de soumission de formulaire
+function monitorFormSubmission(formId) {
+    const form = document.getElementById(formId);
+    if (!form) {
+        console.error(`Formulaire ${formId} non trouvé pour la surveillance!`);
+        return;
+    }
+    
+    form.addEventListener('submit', (e) => {
+        console.log(`Soumission du formulaire ${formId} détectée`);
+        debugForm(formId);
+    });
+    
+    console.log(`Surveillance du formulaire ${formId} activée`);
+}
+
+// Exporter les fonctions pour utilisation globale
+window.debugForm = debugForm;
+window.monitorFormSubmission = monitorFormSubmission;
+
+// Message d'initialisation
+console.log("Application initialisée");
+
+
 // Outil de console de débogage
 (function() {
   // Créer un élément pour afficher les logs
