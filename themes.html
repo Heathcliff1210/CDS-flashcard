@@ -483,7 +483,7 @@ class StorageManager {
                     } else if (key === 'decks') {
                         return SessionManager.getDecks();
                     }
-                    
+
                     const item = localStorage.getItem(key);
                     return item ? JSON.parse(item) : defaultValue;
                 } catch (error) {
@@ -894,14 +894,13 @@ class StorageManager {
             return isCurrentReadOnly || isReferrerReadOnly;
         }
 
-        // Configurer l'interface selon le mode
         function setupInterface() {
             const actionButtons = document.getElementById('actionButtons');
             const readOnly = isReadOnlyMode();
 
             if (readOnly) {
                 actionButtons.innerHTML = `
-                    <button class="primary-btn" onclick="startRevision()">
+                    <button class="primary-btn"` onclick="startRevision()">
                         <i class="fas fa-book"></i> Mode Révision
                     </button>
                 `;
@@ -969,5 +968,23 @@ class StorageManager {
             window.location.href = url;
         }
     </script>
+    <script src="debug.js"></script>
+<script>
+// Script de débogage pour les flashcards
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Debug: DOM chargé");
+    console.log("Debug: currentDeckId =", currentDeckId);
+
+    const createForm = document.getElementById('createFlashcardForm');
+    if (createForm) {
+        console.log("Debug: Formulaire de création trouvé");
+        createForm.addEventListener('submit', function(e) {
+            console.log("Debug: Submit du formulaire détecté");
+        });
+    } else {
+        console.error("Debug: Formulaire de création NON trouvé");
+    }
+});
+</script>
 </body>
 </html>
