@@ -633,7 +633,16 @@ class StorageManager {
         function renderFlashcards() {
             const container = document.getElementById('flashcards-container');
             const saveAndReturnBtn = document.getElementById('saveAndReturnBtn');
+            const createFlashcardBtn = document.querySelector('.primary-btn');
+            const urlParams = new URLSearchParams(window.location.search);
+            const isViewMode = urlParams.get('mode') === 'readonly';
             const flashcards = FlashcardManager.getFlashcards(currentDeckId);
+
+            // Masquer les boutons en mode view
+            if (isViewMode) {
+                createFlashcardBtn.style.display = 'none';
+                saveAndReturnBtn.style.display = 'none';
+            }
 
             flashcardCount = flashcards.length;
             saveAndReturnBtn.style.display = flashcardCount > 0 ? 'flex' : 'none';
@@ -645,6 +654,7 @@ class StorageManager {
 
             container.innerHTML = flashcards.map(card => `
                 <div class="flashcard" onclick="toggleFlashcard(this)">
+                    ${!isViewMode ? `
                     <div class="flashcard-actions">
                         <button class="flashcard-action-btn" onclick="event.stopPropagation(); openEditFlashcardModal(${card.id})">
                             <i class="fas fa-edit"></i>
@@ -653,6 +663,7 @@ class StorageManager {
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
+                    ` : ''}
                     <div class="flashcard-inner">
                         <div class="flashcard-front">
                             <p>${card.front}</p>
