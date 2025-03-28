@@ -687,7 +687,9 @@ class StorageManager {
             const mode = urlParams.get('mode');
             const source = urlParams.get('source');
             const isViewMode = mode === 'readonly' || source === 'view';
-            const flashcards = FlashcardManager.getFlashcards(currentDeckId);
+            
+            // Utiliser la fonction adaptée pour récupérer les flashcards (pour les decks publics)
+            const flashcards = getFlashcardsForDeck(currentDeckId);
 
             // Masquer les boutons d'action en mode view
             if (isViewMode) {
@@ -818,6 +820,22 @@ class StorageManager {
             if (frontPreview) frontPreview.style.display = 'none';
             
             const backPreview = document.getElementById('backImagePreview');
+
+        // Récupérer les flashcards en fonction du mode
+        function getFlashcardsForDeck(deckId) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            const originSession = urlParams.get('originSession');
+            
+            // Si c'est un deck public d'une autre session
+            if (mode === 'readonly' && originSession && originSession !== SessionManager.getSessionKey()) {
+                return SessionManager.getPublicFlashcards(deckId, originSession);
+            }
+            
+            // Sinon, récupérer normalement
+            return FlashcardManager.getFlashcards(deckId);
+        }
+
             if (backPreview) backPreview.style.display = 'none';
         }
 

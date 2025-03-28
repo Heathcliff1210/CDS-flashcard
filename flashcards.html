@@ -265,7 +265,7 @@
                     } else if (key === 'decks') {
                         return SessionManager.getDecks();
                     }
-                    
+
                     const item = localStorage.getItem(key);
                     return item ? JSON.parse(item) : defaultValue;
                 } catch (error) {
@@ -326,6 +326,41 @@
             }
         }
 
+
+        // Placeholder implementations for FlashcardManager and SessionManager
+        class FlashcardManager {
+            static getFlashcards(deckId) {
+                // Replace with actual implementation to fetch flashcards from local storage or server
+                return [];
+            }
+        }
+
+        class SessionManager {
+            static getSessionKey() {
+                // Replace with actual implementation to get session key
+                return 'testSession';
+            }
+            static getThemes() {
+                // Replace with actual implementation
+                return [];
+            }
+            static saveThemes(themes) {
+                //Replace with actual implementation
+            }
+            static getDecks() {
+                //Replace with actual implementation
+                return [];
+            }
+            static saveDecks(decks) {
+                //Replace with actual implementation
+            }
+            static getPublicFlashcards(deckId, sessionKey) {
+                // Replace with actual implementation to fetch public flashcards from another session
+                return [];
+            }
+        }
+
+
         // Gestion des thèmes
         function renderThemes() {
             const container = document.getElementById('themes-container');
@@ -369,12 +404,12 @@
             // Vérifier si on est en mode lecture seule
             const urlParams = new URLSearchParams(window.location.search);
             const isReadOnly = urlParams.get('mode') === 'readonly';
-            
+
             // Préserver le mode lecture seule lors de la navigation
             const url = isReadOnly 
                 ? `themes.html?themeId=${themeId}&mode=readonly` 
                 : `themes.html?themeId=${themeId}`;
-                
+
             window.location.href = url;
         }
 
@@ -426,7 +461,23 @@
         // Vérifier si on est en mode lecture seule
         function isReadOnlyMode() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('mode') === 'readonly';
+            const mode = urlParams.get('mode');
+            return mode === 'readonly';
+        }
+
+        // Récupérer les flashcards en fonction du mode
+        function getFlashcardsForDeck(deckId) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            const originSession = urlParams.get('originSession');
+
+            // Si c'est un deck public d'une autre session
+            if (mode === 'readonly' && originSession && originSession !== SessionManager.getSessionKey()) {
+                return SessionManager.getPublicFlashcards(deckId, originSession);
+            }
+
+            // Sinon, récupérer normalement
+            return FlashcardManager.getFlashcards(deckId);
         }
 
         // Configurer l'interface selon le mode

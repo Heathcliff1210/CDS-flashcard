@@ -231,9 +231,21 @@
         const currentSessionKeySpan = document.getElementById('currentSessionKey');
         const copySessionKeyBtn = document.getElementById('copySessionKeyBtn');
 
+        // Importer SessionManager si nécessaire
+        function ensureSessionManagerLoaded(callback) {
+            if (typeof SessionManager === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'session-manager.js';
+                script.onload = callback;
+                document.head.appendChild(script);
+            } else {
+                callback();
+            }
+        }
+
         function getPublicDecks() {
-            const allDecks = JSON.parse(localStorage.getItem('decks') || '[]');
-            return allDecks.filter(deck => deck.isPublic);
+            // Récupère les decks publics de toutes les sessions
+            return SessionManager.getAllPublicDecks();
         }
 
         function displayDecks(decks) {
@@ -255,8 +267,9 @@
                     <div class="deck-title">${deck.name}</div>
                     <div class="deck-details">
                         <p>${deck.description || ''}</p>
+                        <p class="session-info">Session: ${deck.originSession}</p>
                     </div>
-                    <button class="action-btn" onclick="viewPublicDeck(${deck.id})">
+                    <button class="action-btn" onclick="viewPublicDeck(${deck.id}, '${deck.originSession}')">
                         <i class="fas fa-eye"></i> Voir le deck
                     </button>
                 `;
@@ -284,10 +297,12 @@
         });
 
         // Initialisation
-        searchDecks('');
+        ensureSessionManagerLoaded(() => {
+            searchDecks('');
+        });
 
-        function viewPublicDeck(deckId) {
-            window.location.href = `flashcards.html?deckId=${deckId}&mode=readonly`;
+        function viewPublicDeck(deckId, originSession) {
+            window.location.href = `flashcards.html?deckId=${deckId}&originSession=${originSession}&mode=readonly`;
         }
 
         // Afficher la clé de session actuelle
