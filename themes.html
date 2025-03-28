@@ -453,8 +453,8 @@
             static getCurrentDeckId() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const deckId = parseInt(urlParams.get('deckId'));
-                if (!deckId) {
-                    window.location.href = 'index.html';
+                if (isNaN(deckId)) {
+                    console.error('ID de deck non valide');
                     return null;
                 }
                 return deckId;
