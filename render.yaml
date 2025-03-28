@@ -7,5 +7,17 @@ services:
     staticPublishPath: ./
     routes:
       - type: rewrite
+        source: /acceuil
+        destination: /acceuil.html
+      - type: rewrite
+        source: /dashboard
+        destination: /dashboard.html
+      - type: rewrite
+        source: /flashcards
+        destination: /flashcards.html
+      - type: rewrite
+        source: /themes
+        destination: /themes.html
+      - type: rewrite
         source: /*
         destination: /index.html
