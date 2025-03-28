@@ -290,16 +290,15 @@
             window.location.href = `flashcards.html?deckId=${deckId}&mode=readonly`;
         }
 
-        // Placeholder for session key -  REPLACE WITH ACTUAL SESSION KEY MANAGEMENT
-        currentSessionKeySpan.textContent = "No Session Key";
-
+        // Afficher la clé de session actuelle
+        const currentKey = localStorage.getItem('currentSessionKey') || 'No Session Key';
+        currentSessionKeySpan.textContent = currentKey;
 
         copySessionKeyBtn.addEventListener('click', () => {
-            // Placeholder for copy functionality - REPLACE WITH ACTUAL COPY MECHANISM
-            navigator.clipboard.writeText("No Session Key").then(() => {
-                alert("Session Key (placeholder) copied to clipboard!");
+            navigator.clipboard.writeText(currentKey).then(() => {
+                alert("Clé de session copiée!");
             }, () => {
-                alert("Failed to copy. Please try again.");
+                alert("Échec de la copie. Veuillez réessayer.");
             });
         });
     </script>
